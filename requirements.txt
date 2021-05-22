@@ -1,0 +1,7 @@
+Praw
+requests
+flask
+pandas
+pytumblr
+google-api-python-client
+oauth2client
