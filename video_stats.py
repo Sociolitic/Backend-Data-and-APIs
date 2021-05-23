@@ -5,7 +5,7 @@ import pandas as pd
 
 
 def Video_stats(videoId):
-    DEVELOPER_KEY = "AIzaSyCLa0LoJiVAWWEX-BH4prLyldw13r0AbUI"
+    DEVELOPER_KEY = "API_KEY"
     YOUTUBE_API_SERVICE_NAME = "youtube"
     YOUTUBE_API_VERSION = "v3"
 
