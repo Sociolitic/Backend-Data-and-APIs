@@ -1,4 +1,5 @@
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 import sys
 import json
 import pandas as pd
@@ -26,17 +27,26 @@ def comments_(videoId):
         topics_data = pd.DataFrame(youtube_dict)
         return topics_data
     else:
-        response=youtube.commentThreads().list(
-        part='snippet,replies',
-        videoId=videoId
-        ).execute()
-
+        try:
+            response=youtube.commentThreads().list(
+            part='snippet,replies',
+            videoId=videoId
+            ).execute()
+        except HttpError as err:
+          if err.resp.status in [403, 500, 503]:
+              youtube_dict = {'Comment':comment,'Author_name':Author_name,'Date':date,'Author_channel_id':Author_channel_id,'Likes':likes,'totalReplyCount':totalReplyCount}
+              topics_data = pd.DataFrame(youtube_dict)
+              return topics_data
+          else: raise
 
         while response:
             for item in response['items']:
                 comment.append(item['snippet']['topLevelComment']['snippet']['textDisplay'])
                 Author_name.append(item['snippet']['topLevelComment']['snippet']['authorDisplayName'])
-                Author_channel_id.append(item['snippet']['topLevelComment']['snippet']['authorChannelId']['value'])
+                if 'authorChannelId' in item['snippet']['topLevelComment']['snippet'].keys():
+                    Author_channel_id.append(item['snippet']['topLevelComment']['snippet']['authorChannelId']['value'])
+                else:
+                    Author_channel_id.append("NO_ID")
                 date.append(item['snippet']['topLevelComment']['snippet']['updatedAt'])
                 likes.append(item['snippet']['topLevelComment']['snippet']['likeCount'])
                 totalReplyCount.append(item['snippet']['totalReplyCount'])
@@ -58,7 +68,6 @@ def comments_(videoId):
                         replies_.append(new_replies_dict)
                 else:
                     replies_.append({})
-
             if 'nextPageToken' in response and count<=1:
                 response = youtube.commentThreads().list(
                         part = 'snippet,replies',
