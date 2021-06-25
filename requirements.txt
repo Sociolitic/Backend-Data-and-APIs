@@ -5,3 +5,16 @@ pandas
 pytumblr
 google-api-python-client
 oauth2client
+dnspython
+pymongo[srs]
+datetime
+tweepy
+langdetect
+instagrapi
+pillow
+contractions
+unidecode
+emoji
+google_trans_new
+textblob
+nltk

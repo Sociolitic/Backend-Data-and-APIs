@@ -1,0 +1,285 @@
+{
+	"info": {
+		"_postman_id": "ca3f02e4-f8ee-4af2-9b4e-9a314dd1b36b",
+		"name": "Capstone data apis",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Reddit",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/reddit/?q=Amazon&sort=hot&limit=3",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"reddit",
+						""
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "Amazon"
+						},
+						{
+							"key": "sort",
+							"value": "hot"
+						},
+						{
+							"key": "limit",
+							"value": "3"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Twitter_stream",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/twitter/stream/?q=Apple",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"twitter",
+						"stream",
+						""
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "Apple"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Youtube crawler",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/youtube/search/?q=Amazon",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"youtube",
+						"search",
+						""
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "Amazon"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Youtube video stats",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/youtube/stats/?videoId=n-D1EB74Ckg",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"youtube",
+						"stats",
+						""
+					],
+					"query": [
+						{
+							"key": "videoId",
+							"value": "n-D1EB74Ckg"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Youtube channel stats",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/youtube/stats/?channelId=UC5WjFrtBdufl6CZojX3D8dQ",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"youtube",
+						"stats",
+						""
+					],
+					"query": [
+						{
+							"key": "channelId",
+							"value": "UC5WjFrtBdufl6CZojX3D8dQ"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Instagram crawler",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/insta/search/?q=redmi",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"insta",
+						"search",
+						""
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "redmi"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Twitter crawler",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/twitter/search/?q=Apple",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"twitter",
+						"search",
+						""
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "Apple"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tumblr crawler",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/tumblr/search/?q=Apple",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"tumblr",
+						"search",
+						""
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "Apple"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crawl all",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/search/?q=Amazon",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"search",
+						""
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "Amazon"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

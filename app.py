@@ -5,6 +5,8 @@ from channel_stats import *
 from video_stats import *
 from youtube_search import *
 from tumblr import *
+from insta import *
+from twitter import *
 
 app = Flask(__name__)
 
@@ -12,13 +14,13 @@ app = Flask(__name__)
 def baseurl():
 	return("working")
 
-@app.route('/reddit/',methods=['GET'])
+@app.route('/reddit/search/',methods=['GET'])
 def redditapi():
 	Sort = request.args.get('sort')
 	Limit = request.args.get('limit')
 	Search = request.args.get('q')
 	if Limit is None:
-		Limit=10
+		Limit=100
 	if (Sort=="Top"):
 		return reddittop(Search,number=int(Limit))
 	elif (Sort=='New'):
@@ -46,6 +48,37 @@ def youtube_search():
 def tumblr():
 	Search = request.args.get('q')
 	return tumblrsearch(Search)
+
+@app.route('/insta/search/',methods=['GET'])
+def Insta():
+	Search = request.args.get('q')
+	return insta(Search)
+
+@app.route('/twitter/search/',methods=['GET'])
+def Twitter():
+	Search = request.args.get('q')
+	return twitter_past(Search)
+
+@app.route('/twitter/stream/',methods=['GET'])
+def Twitter_():
+	Search = request.args.get('q')
+	Time_Limit = request.args.get('time')
+	if Time_Limit == None:
+		return twitter_stream(Search)
+	return twitter_stream(q=Search,t=float(Time_Limit)*60)
+
+@app.route('/search/',methods=['GET'])
+def All_data():
+	Search = request.args.get('q')
+	print("Searching started")
+	tumblrsearch(Search)
+	Video_Search(Search)
+	insta(Search)
+	reddithot(Search)
+	twitter_past(Search)
+	twitter_stream(q=Search)
+	return True
+
 
 if __name__ == '__main__':
 	app.run(debug=False,host='0.0.0.0')
