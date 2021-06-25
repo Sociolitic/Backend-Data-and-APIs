@@ -9,7 +9,7 @@ flask run
 follow postman collection for further steps
 
 
-#Docker
+**Docker**
 
 
 To pull docker : docker pull sociolitic/data-crawlers:latest
