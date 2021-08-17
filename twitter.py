@@ -7,15 +7,13 @@ import datetime
 from sentiment import *
 
 
-consumer_key = "OaE3eeWXCp1G3ACVdDUNLnPkw"
-consumer_secret = "y87lVHLWdq27bmo18xWASIJKjmxQQ4NjEQflBLFg8AnpTwEccV"
-access_token = "1361882810848452610-Z1dQ2INKhBzuGtxsKiSjj495EoHzRg"
-access_token_secret = "9IFhQtI0H5D3nOR4ok2fUfpreFJqjmLNTLNYif7EEvO3S"
+consumer_key = "zr6Q2eouAo0eID46lwC0rbeUo"
+consumer_secret = "5G5MwRU2L3F9LSkjqmrhkdqnAG8f4hSIxt5XNaP54YrGZ2K6Yr"
+access_token = "1361882810848452610-1wxJm975Mm5B85y9XupGoHbkNqwnIh"
+access_token_secret = "Vb4XvjlLOAUrmWqraKQ7LAgsC7jMp4ZoHrwhHvhgUZRLz"
 client = pymongo.MongoClient("mongodb+srv://KokilaReddy:KokilaReddy@cluster0.5nrpf.mongodb.net/Sociolitic?retryWrites=true&w=majority")
 db = client.Social_media_data
 Twitter = db.twitter
-Twitter_count = db.twitter_count
-Total_count = db.total_count
 
 
 auth= tweepy.OAuthHandler(consumer_key,consumer_secret)
@@ -38,38 +36,28 @@ class MyStreamListener(tweepy.StreamListener):
     def on_status(self, status):
         try:
             tweet_id = status.id
-            if status.text[:2] == "RT @":
-                user_id = status.retweeted_status.user.id
-                user_geo = status.retweeted_status.geo
+            if status.text[:4] == "RT @":
+                original_id = status.retweeted_status.id
                 if status.retweeted_status.truncated == True:
                     tweet_txt = status.retweeted_status.extended_tweet['full_text']
                 else:
                     tweet_txt = status.retweeted_status.text
             elif status.truncated == True:
-                user_id = status.user.id
-                user_geo = status.geo
                 tweet_txt = status.extended_tweet['full_text']
+                original_id = 0
             else:
-                user_id = status.user.id
-                user_geo = status.geo
                 tweet_txt = status.text
+                original_id = 0
+
+            user_id = status.user.id
+            user_geo = status.geo
             created_at = status.created_at
             lang = status.lang
+
+            entities = status.entities
             retweet_count = status.retweet_count
             print("tweet_id :",tweet_id)
             Sentiment = sentiment_analysis(tweet_txt)
-            if Sentiment == "Positive":
-                pos = 1
-                neg = 0
-                neu = 0
-            elif Sentiment == "Negative":
-                pos = 0
-                neg = 1
-                neu = 0
-            else:
-                pos = 0
-                neg = 0
-                neu = 1
             twitter_data = {
                         "text": tweet_txt,
                         "tweet_id": str(tweet_id) ,
@@ -80,54 +68,11 @@ class MyStreamListener(tweepy.StreamListener):
                         "created_time" :   created_at,
                         "tag" : self.query,
                         "sentiment" : Sentiment,
+                        "original_id": original_id,
+                        "entities": entities,
                         "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
                     }
             Twitter.insert_one(twitter_data)
-            count_data = {
-            "tag" : self.query,
-            "Total_reviews": 1,
-            "positive":pos,
-            "negative":neg,
-            "neutral":neu,
-            "createdAt": datetime.datetime.now(),
-            "updatedAt": datetime.datetime.now()
-            }
-            if (db.twitter_count.find({'tag':self.query}).count() > 0)== False:
-                Twitter_count.insert_one(count_data)
-            else :
-                tum_cnt = db.twitter_count.find_one({'tag':self.query})
-                reviews = tum_cnt["Total_reviews"]
-                positive = tum_cnt["positive"]
-                negative = tum_cnt["negative"]
-                neutral = tum_cnt["neutral"]
-                updated_count_data ={
-                "$set":
-                {"Total_reviews": reviews+1,
-                "positive":positive+pos,
-                "negative":negative+neg,
-                "neutral":neutral+neu,
-                "updatedAt": datetime.datetime.now()
-                }
-                }
-                Twitter_count.update_one(tum_cnt,updated_count_data)
-            if (db.total_count.find({'tag':self.query}).count() > 0)== False:
-                Total_count.insert_one(count_data)
-            else:
-                ttl_cnt = db.total_count.find_one({'tag':self.query})
-                reviews = ttl_cnt["Total_reviews"]
-                positive = ttl_cnt["positive"]
-                negative = ttl_cnt["negative"]
-                neutral = ttl_cnt["neutral"]
-                updated_total_count_data ={
-                "$set":
-                {"Total_reviews": reviews+1,
-                "positive":positive+pos,
-                "negative":negative+neg,
-                "neutral":neutral+neu,
-                "updatedAt": datetime.datetime.now()
-                }
-                }
-                Total_count.update_one(ttl_cnt,updated_total_count_data)
             if (time.time() - self.start_time) > self.limit:
                 # print(time.time(), self.start_time, self.limit)
                 return False
@@ -139,112 +84,63 @@ class MyStreamListener(tweepy.StreamListener):
         if (time.time() - self.start_time) > self.limit:
             # print(time.time(), self.start_time, self.limit)
             return False
-
-
     def on_error(self, status_code):
         return False
 
-def twitter_past(q):
-    for status in tweepy.Cursor(api.search, q,tweet_mode="extended").items(3000):
+def twitter_past(q,count=3000):
+    Count = 0
+    for status in tweepy.Cursor(api.search, q,tweet_mode="extended").items(3200):
         tweet_id = status.id
-        if status.full_text[:2] == "RT @ ":
-            is_retweet = True
-            user_id = status.retweeted_status.user.id
-            user_geo = status.retweeted_status.geo
-            if status.retweeted_status.truncated == True:
-                tweet_txt = status.retweeted_status.extended_tweet['full_text']
-            else:
-                tweet_txt = status.retweeted_status.full_text
-
-        elif status.truncated == True:
-            is_retweet = False
-            user_id = status.user.id
-            user_geo = status.geo
-            tweet_txt = status.extended_tweet['full_text']
-
-        else:
-            is_retweet = False
-            user_id = status.user.id
-            user_geo = status.geo
-            tweet_txt = status.full_text
-        created_at = status.created_at
-        lang = status.lang
-        retweet_count = status.retweet_count
-        Sentiment = sentiment_analysis(tweet_txt)
-        if Sentiment == "Positive":
-            pos = 1
-            neg = 0
-            neu = 0
-        elif Sentiment == "Negative":
-            pos = 0
-            neg = 1
-            neu = 0
-        else:
-            pos = 0
-            neg = 0
-            neu = 1
-
-        twitter_data = {
-                            "text": tweet_txt,
-                            "tweet_id": str(tweet_id ),
-                            "user_id": str(user_id),
-                            "geo": user_geo,
-                            "lang": lang,
-                            "retweet_count": int(retweet_count),
-                            "created_time" : created_at,
-                            "tag" : q,
-                            "sentiment" : Sentiment,
-                            "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
-                        }
+        if (Count == count ):
+            return "Done"
         if (db.twitter.find({"tweet_id":tweet_id}).count() > 0)== False:
-            Twitter.insert_one(twitter_data)
-            count_data = {
-            "tag" : q,
-            "Total_reviews": 1,
-            "positive":pos,
-            "negative":neg,
-            "neutral":neu,
-            "createdAt": datetime.datetime.now(),
-            "updatedAt": datetime.datetime.now()
-            }
-            if (db.twitter_count.find({'tag':q}).count() > 0)== False:
-                Twitter_count.insert_one(count_data)
-            else :
-                tum_cnt = db.twitter_count.find_one({'tag':q})
-                reviews = tum_cnt["Total_reviews"]
-                positive = tum_cnt["positive"]
-                negative = tum_cnt["negative"]
-                neutral = tum_cnt["neutral"]
-                updated_count_data ={
-                "$set":
-                {"Total_reviews": reviews+1,
-                "positive":positive+pos,
-                "negative":negative+neg,
-                "neutral":neutral+neu,
-                "updatedAt": datetime.datetime.now()
-                }
-                }
-                Twitter_count.update_one(tum_cnt,updated_count_data)
+            Count +=1
+            print(tweet_id)
+            if status.full_text[:2] == "RT @ ":
+                is_retweet = True
+                user_id = status.user.id
+                user_geo = status.retweeted_status.geo
+                original_id=status.retweeted_status.id
+                if status.retweeted_status.truncated == True:
+                    tweet_txt = status.retweeted_status.extended_tweet['full_text']
+                else:
+                    tweet_txt = status.retweeted_status.full_text
 
-            if (db.total_count.find({'tag':q}).count() > 0)== False:
-                Total_count.insert_one(count_data)
+            elif status.truncated == True:
+                is_retweet = False
+                user_id = status.user.id
+                user_geo = status.geo
+                original_id= 0
+                tweet_txt = status.extended_tweet['full_text']
+
             else:
-                ttl_cnt = db.total_count.find_one({'tag':q})
-                reviews = ttl_cnt["Total_reviews"]
-                positive = ttl_cnt["positive"]
-                negative = ttl_cnt["negative"]
-                neutral = ttl_cnt["neutral"]
-                updated_total_count_data ={
-                "$set":
-                {"Total_reviews": reviews+1,
-                "positive":positive+pos,
-                "negative":negative+neg,
-                "neutral":neutral+neu,
-                "updatedAt": datetime.datetime.now()
-                }
-                }
-                Total_count.update_one(ttl_cnt,updated_total_count_data)
+                is_retweet = False
+                user_id = status.user.id
+                user_geo = status.geo
+                original_id= 0
+                tweet_txt = status.full_text
+            created_at = status.created_at
+            lang = status.lang
+            entities = status.entities
+            retweet_count = status.retweet_count
+            Sentiment = sentiment_analysis(tweet_txt)
 
+            twitter_data = {
+                                "text": tweet_txt,
+                                "tweet_id": str(tweet_id ),
+                                "user_id": str(user_id),
+                                "geo": user_geo,
+                                "lang": lang,
+                                "retweet_count": int(retweet_count),
+                                "created_time" : created_at,
+                                "tag" : q,
+                                "sentiment" : Sentiment,
+                                "original_id":original_id,
+                                "entities" : entities,
+                                "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
+                            }
+            Twitter.insert_one(twitter_data)
+    return ("Extracted twitter data")
 
 def twitter_stream(q,t=15*60):
     myStream = tweepy.Stream(auth=api.auth, listener=MyStreamListener(q=q,time_limit= t),tweet_mode="extended")

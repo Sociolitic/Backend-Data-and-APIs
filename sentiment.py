@@ -61,5 +61,3 @@ def sentiment_analysis(tweet):
             return 'Positive'
     TextBlob_Analysis = getAnalysis(TextBlob_Polarity)
     return TextBlob_Analysis
-tweet = "This dog \U0001f602"
-sentiment_analysis(tweet)

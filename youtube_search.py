@@ -14,8 +14,6 @@ from sentiment import *
 client = pymongo.MongoClient("mongodb+srv://KokilaReddy:KokilaReddy@cluster0.5nrpf.mongodb.net/Sociolitic?retryWrites=true&w=majority")
 db = client.Social_media_data
 YouTube = db.youTube
-Youtube_count = db.youtube_count
-Total_count = db.total_count
 
 def Category(Id):
     switcher = {
@@ -37,7 +35,7 @@ def Category(Id):
     }
     return switcher.get(Id, "None")
 
-def youtube_search(q, max_results=50,order="relevance", token=None, location=None, location_radius=None):
+def youtube_search(q, max_results,order="date", token=None, location=None, location_radius=None):
     DEVELOPER_KEY = "AIzaSyCLa0LoJiVAWWEX-BH4prLyldw13r0AbUI"
     YOUTUBE_API_SERVICE_NAME = "youtube"
     YOUTUBE_API_VERSION = "v3"
@@ -115,6 +113,7 @@ def youtube_search(q, max_results=50,order="relevance", token=None, location=Non
                 Tags = []
                 tags.append([])
 
+                print(response['items'][0]['snippet']['publishedAt'])
             youtube_data = {
             'tags': Tags,
             'channelId': str(response['items'][0]['snippet']['channelId']),
@@ -136,72 +135,13 @@ def youtube_search(q, max_results=50,order="relevance", token=None, location=Non
             }
 
             YouTube.insert_one(youtube_data)
-            if Sentiment == "Positive":
-                pos = 1
-                neg = 0
-                neu = 0
-            elif Sentiment == "Negative":
-                pos = 0
-                neg = 1
-                neu = 0
-            else:
-                pos = 0
-                neg = 0
-                neu = 1
-            count_data = {
-            "tag" : q,
-            "Total_reviews": 1,
-            "positive":pos,
-            "negative":neg,
-            "neutral":neu,
-            "createdAt": datetime.datetime.now(),
-            "updatedAt": datetime.datetime.now()
-            }
-            if (db.youtube_count.find({'tag':q}).count() > 0)== False:
-                Youtube_count.insert_one(count_data)
-            else :
-                tum_cnt = db.youtube_count.find_one({'tag':q})
-                reviews = tum_cnt["Total_reviews"]
-                positive = tum_cnt["positive"]
-                negative = tum_cnt["negative"]
-                neutral = tum_cnt["neutral"]
-                updated_count_data ={
-                "$set":
-                {"Total_reviews": reviews+1,
-                "positive":positive+pos,
-                "negative":negative+neg,
-                "neutral":neutral+neu,
-                "updatedAt": datetime.datetime.now()
-                }
-                }
-                Youtube_count.update_one(tum_cnt,updated_count_data)
-
-            if (db.total_count.find({'tag':q}).count() > 0)== False:
-                Total_count.insert_one(count_data)
-            else:
-                ttl_cnt = db.total_count.find_one({'tag':q})
-                reviews = ttl_cnt["Total_reviews"]
-                positive = ttl_cnt["positive"]
-                negative = ttl_cnt["negative"]
-                neutral = ttl_cnt["neutral"]
-                updated_total_count_data ={
-                "$set":
-                {"Total_reviews": reviews+1,
-                "positive":positive+pos,
-                "negative":negative+neg,
-                "neutral":neutral+neu,
-                "updatedAt": datetime.datetime.now()
-                }
-                }
-                Total_count.update_one(ttl_cnt,updated_total_count_data)
-
 
     youtube_dict = {'tags':tags,'channelId': channelId,'channelTitle': channelTitle,'publishedTime':time,'categoryId':categoryId,'title':title,'videoId':videoId,'viewCount':viewCount,'likeCount':likeCount,'dislikeCount':dislikeCount,'commentCount':commentCount,'favoriteCount':favoriteCount,'comments':comments}
 
     return youtube_dict
 
-def Video_Search(Search):
-    test = youtube_search(Search)
+def Video_Search(Search,max_results=50):
+    test = youtube_search(Search,max_results)
     df=pd.DataFrame(test)
     json=df.to_json(orient="records")
     return json

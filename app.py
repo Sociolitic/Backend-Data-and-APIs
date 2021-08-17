@@ -5,8 +5,9 @@ from channel_stats import *
 from video_stats import *
 from youtube_search import *
 from tumblr import *
-from insta import *
+# from insta import *
 from twitter import *
+from sentiment import *
 
 app = Flask(__name__)
 
@@ -42,22 +43,49 @@ def youtubestats():
 @app.route('/youtube/search/',methods=['GET'])
 def youtube_search():
 	 Search = request.args.get('q')
-	 return Video_Search(Search)
+	 Limit = request.args.get('limit')
+	 if (Limit is None) or (int(Limit)>50):
+		 return Video_Search(Search)
+	 else:
+		 return Video_Search(Search,max_results=int(Limit))
+
 
 @app.route('/tumblr/search/',methods=['GET'])
 def tumblr():
 	Search = request.args.get('q')
 	return tumblrsearch(Search)
 
-@app.route('/insta/search/',methods=['GET'])
-def Insta():
+@app.route('/sentiment/',methods=['GET'])
+def sentiment_():
 	Search = request.args.get('q')
-	return insta(Search)
+	return sentiment_analysis(Search)
+#
+# @app.route('/insta/search/top/',methods=['GET'])
+# def Insta_top():
+# 	Search = request.args.get('q')
+# 	Limit = request.args.get('limit')
+# 	if (Limit is None):
+# 		return insta_top(Search)
+# 	else:
+# 		return insta_top(Search,amount=int(Limit))
+#
+# @app.route('/insta/search/recent/',methods=['GET'])
+# def Insta_recent():
+# 	Search = request.args.get('q')
+# 	Limit = request.args.get('limit')
+# 	if (Limit is None):
+# 		return insta_recent(Search)
+# 	else:
+# 		return insta_recent(Search,amount=int(Limit))
 
 @app.route('/twitter/search/',methods=['GET'])
 def Twitter():
 	Search = request.args.get('q')
-	return twitter_past(Search)
+	Limit = request.args.get('limit')
+	if (Limit is None) or (int(Limit)>3000):
+		return twitter_past(Search)
+	else:
+		return twitter_past(Search,count=int(Limit))
 
 @app.route('/twitter/stream/',methods=['GET'])
 def Twitter_():
@@ -73,7 +101,6 @@ def All_data():
 	print("Searching started")
 	tumblrsearch(Search)
 	Video_Search(Search)
-	insta(Search)
 	reddithot(Search)
 	twitter_past(Search)
 	twitter_stream(q=Search)

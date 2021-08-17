@@ -6,11 +6,6 @@ import pandas as pd
 import datetime
 import pymongo
 from pymongo import MongoClient
-from sentiment import *
-
-client = pymongo.MongoClient("mongodb+srv://KokilaReddy:KokilaReddy@cluster0.5nrpf.mongodb.net/Sociolitic?retryWrites=true&w=majority")
-db = client.Social_media_data
-Youtube_comments = db.youTube_comment
 
 def comments_(videoId):
     DEVELOPER_KEY = "AIzaSyCLa0LoJiVAWWEX-BH4prLyldw13r0AbUI"
@@ -29,7 +24,6 @@ def comments_(videoId):
     likes = []
     totalReplyCount = []
     replies_=[]
-    sentiment_ = []
     count=0
 
     if comment_count == "0":
@@ -60,47 +54,6 @@ def comments_(videoId):
                 date.append(datetime.datetime.strptime(item['snippet']['topLevelComment']['snippet']['updatedAt'], '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d %H:%M:%S'))
                 likes.append(item['snippet']['topLevelComment']['snippet']['likeCount'])
                 totalReplyCount.append(item['snippet']['totalReplyCount'])
-                Sentiment_ = sentiment_analysis(item['snippet']['topLevelComment']['snippet']['textDisplay'])
-                sentiment_.append(sentiment_analysis(item['snippet']['topLevelComment']['snippet']['textDisplay']))
-                if Sentiment_ == "Positive":
-                    pos_ = 1
-                    neg_ = 0
-                    neu_ = 0
-                elif Sentiment_ == "Negative":
-                    pos_ = 0
-                    neg_ = 1
-                    neu_ = 0
-                else:
-                    pos_ = 0
-                    neg_ = 0
-                    neu_ = 1
-                comment_data = {
-                "videoId":videoId,
-                "comments":1,
-                "positive":pos_,
-                "negative":neg_,
-                "neutral":neu_ ,
-                "createdAt": datetime.datetime.now(),
-                "updatedAt": datetime.datetime.now()
-                }
-                if (db.youTube_comment.find({'videoId':videoId}).count() > 0)== False:
-                    Youtube_comments.insert_one(comment_data)
-                else :
-                    red_cmt = db.youTube_comment.find_one({'videoId':videoId})
-                    reviews = red_cmt["comments"]
-                    positive_ = red_cmt["positive"]
-                    negative_ = red_cmt["negative"]
-                    neutral_ = red_cmt["neutral"]
-                    updated_count_data_ ={
-                    "$set":
-                    {"comments": reviews+1,
-                    "positive":positive_+pos_,
-                    "negative":negative_+neg_,
-                    "neutral":neutral_+neu_,
-                    "updatedAt": datetime.datetime.now()
-                    }
-                    }
-                    Youtube_comments.update_one(red_cmt,updated_count_data_)
 
                 reply = item['snippet']['totalReplyCount']
                 # reply_text =[]
@@ -129,7 +82,7 @@ def comments_(videoId):
                     ).execute()
                 count+=1
             else:
-                youtube_dict ={'Comment':comment,'Author_name':Author_name,'Date':date,'Author_channel_id':Author_channel_id,'Likes':likes,'totalReplyCount':totalReplyCount,'Sentiment':sentiment_}
+                youtube_dict ={'Comment':comment,'Author_name':Author_name,'Date':date,'Author_channel_id':Author_channel_id,'Likes':likes,'totalReplyCount':totalReplyCount}
                 break
         topics_data = pd.DataFrame(youtube_dict)
         return youtube_dict
