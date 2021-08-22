@@ -27,24 +27,24 @@ def reddithot(Search,number=100):
                     "body":[],"comments":[]}
     try:
         for submission in top_subreddit:
-            comments = {"comment":[],"sentiment":[]}
-            topics_dict["Source"].append("Reddit")
-            topics_dict["title"].append(submission.title)
-            topics_dict["score"].append(submission.score)
-            topics_dict["id"].append(submission.id)
-            topics_dict["url"].append(submission.url)
-            topics_dict["comms_num"].append(submission.num_comments)
-            topics_dict["created"].append(submission.created)
-            topics_dict["body"].append(submission.selftext)
-            submissions = reddit.submission(submission.id)
-            for top_level_comment in submissions.comments:
-                if isinstance(top_level_comment, MoreComments):
-                    continue
-                comments["comment"].append(top_level_comment.body)
-                comments["sentiment"].append(sentiment_analysis(top_level_comment.body))
-            topics_dict["comments"].append(comments)
-            Sentiment = sentiment_analysis(submission.title)
             if (db.reddit.find({"id":submission.id}).count() > 0)== False:
+                comments = {"comment":[],"sentiment":[]}
+                topics_dict["Source"].append("Reddit")
+                topics_dict["title"].append(submission.title)
+                topics_dict["score"].append(submission.score)
+                topics_dict["id"].append(submission.id)
+                topics_dict["url"].append(submission.url)
+                topics_dict["comms_num"].append(submission.num_comments)
+                topics_dict["created"].append(submission.created)
+                topics_dict["body"].append(submission.selftext)
+                submissions = reddit.submission(submission.id)
+                for top_level_comment in submissions.comments:
+                    if isinstance(top_level_comment, MoreComments):
+                        continue
+                    comments["comment"].append(top_level_comment.body)
+                    comments["sentiment"].append(sentiment_analysis(top_level_comment.body))
+                topics_dict["comments"].append(comments)
+                Sentiment = sentiment_analysis(submission.title)
                 reddit_data = {
                 "title": submission.title,
                 "score": submission.score,
@@ -78,37 +78,37 @@ def reddittop(Search,number=100):
                     "body":[],"comments":[]}
     try:
         for submission in top_subreddit:
-            comments = {"comment":[],"sentiment":[]}
-            topics_dict["Source"].append("Reddit")
-            topics_dict["title"].append(submission.title)
-            topics_dict["score"].append(submission.score)
-            topics_dict["id"].append(submission.id)
-            topics_dict["url"].append(submission.url)
-            topics_dict["comms_num"].append(submission.num_comments)
-            topics_dict["created"].append(submission.created)
-            topics_dict["body"].append(submission.selftext)
-            submissions = reddit.submission(submission.id)
-            for top_level_comment in submissions.comments:
-                if isinstance(top_level_comment, MoreComments):
-                    continue
-                comments["comment"].append(top_level_comment.body)
-                comments["sentiment"].append(sentiment_analysis(top_level_comment.body))
-            topics_dict["comments"].append(comments)
-            Sentiment = sentiment_analysis(submission.title)
-            reddit_data = {
-            "title": submission.title,
-            "score": submission.score,
-            "id": submission.id,
-            "url": submission.url,
-            "comments_num": submission.num_comments,
-            "Body": submission.selftext,
-            "created_time" : datetime.datetime.fromtimestamp(submission.created).strftime('%Y-%m-%d %H:%M:%S'),
-            "comments" : comments,
-            "tag" : Search,
-            "sentiment" : Sentiment,
-            "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
-            }
             if (db.reddit.find({"id":submission.id}).count() > 0)== False:
+                comments = {"comment":[],"sentiment":[]}
+                topics_dict["Source"].append("Reddit")
+                topics_dict["title"].append(submission.title)
+                topics_dict["score"].append(submission.score)
+                topics_dict["id"].append(submission.id)
+                topics_dict["url"].append(submission.url)
+                topics_dict["comms_num"].append(submission.num_comments)
+                topics_dict["created"].append(submission.created)
+                topics_dict["body"].append(submission.selftext)
+                submissions = reddit.submission(submission.id)
+                for top_level_comment in submissions.comments:
+                    if isinstance(top_level_comment, MoreComments):
+                        continue
+                    comments["comment"].append(top_level_comment.body)
+                    comments["sentiment"].append(sentiment_analysis(top_level_comment.body))
+                topics_dict["comments"].append(comments)
+                Sentiment = sentiment_analysis(submission.title)
+                reddit_data = {
+                "title": submission.title,
+                "score": submission.score,
+                "id": submission.id,
+                "url": submission.url,
+                "comments_num": submission.num_comments,
+                "Body": submission.selftext,
+                "created_time" : datetime.datetime.fromtimestamp(submission.created).strftime('%Y-%m-%d %H:%M:%S'),
+                "comments" : comments,
+                "tag" : Search,
+                "sentiment" : Sentiment,
+                "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
+                }
                 Reddit.insert_one(reddit_data)
     except:
         pass
@@ -129,38 +129,38 @@ def redditnew(Search,number=100):
                     "body":[],"comments":[]}
     try:
         for submission in top_subreddit:
-            comments = {"comment":[],"sentiment":[]}
-            topics_dict["Source"].append("Reddit")
-            topics_dict["title"].append(submission.title)
-            topics_dict["score"].append(submission.score)
-            topics_dict["id"].append(submission.id)
-            topics_dict["url"].append(submission.url)
-            topics_dict["comms_num"].append(submission.num_comments)
-            topics_dict["created"].append(submission.created)
-            topics_dict["body"].append(submission.selftext)
-            submissions = reddit.submission(submission.id)
-            for top_level_comment in submissions.comments:
-                if isinstance(top_level_comment, MoreComments):
-                    continue
-                comments["comment"].append(top_level_comment.body)
-                comments["sentiment"].append(sentiment_analysis(top_level_comment.body))
-            topics_dict["comments"].append(comments)
-
-            Sentiment = sentiment_analysis(submission.title)
-            reddit_data = {
-            "title": submission.title,
-            "score": submission.score,
-            "id": submission.id,
-            "url": submission.url,
-            "comments_num": submission.num_comments,
-            "Body": submission.selftext,
-            "created_time" : datetime.datetime.fromtimestamp(submission.created).strftime('%Y-%m-%d %H:%M:%S'),
-            "comments" : comments,
-            "tag" : Search,
-            "sentiment" : Sentiment,
-            "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
-            }
             if (db.reddit.find({"id":submission.id}).count() > 0)== False:
+                comments = {"comment":[],"sentiment":[]}
+                topics_dict["Source"].append("Reddit")
+                topics_dict["title"].append(submission.title)
+                topics_dict["score"].append(submission.score)
+                topics_dict["id"].append(submission.id)
+                topics_dict["url"].append(submission.url)
+                topics_dict["comms_num"].append(submission.num_comments)
+                topics_dict["created"].append(submission.created)
+                topics_dict["body"].append(submission.selftext)
+                submissions = reddit.submission(submission.id)
+                for top_level_comment in submissions.comments:
+                    if isinstance(top_level_comment, MoreComments):
+                        continue
+                    comments["comment"].append(top_level_comment.body)
+                    comments["sentiment"].append(sentiment_analysis(top_level_comment.body))
+                topics_dict["comments"].append(comments)
+
+                Sentiment = sentiment_analysis(submission.title)
+                reddit_data = {
+                "title": submission.title,
+                "score": submission.score,
+                "id": submission.id,
+                "url": submission.url,
+                "comments_num": submission.num_comments,
+                "Body": submission.selftext,
+                "created_time" : datetime.datetime.fromtimestamp(submission.created).strftime('%Y-%m-%d %H:%M:%S'),
+                "comments" : comments,
+                "tag" : Search,
+                "sentiment" : Sentiment,
+                "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
+                }
                 Reddit.insert_one(reddit_data)
     except:
         pass
