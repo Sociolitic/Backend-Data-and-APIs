@@ -37,42 +37,41 @@ class MyStreamListener(tweepy.StreamListener):
         try:
             tweet_id = status.id
             if status.text[:4] == "RT @":
-                original_id = status.retweeted_status.id
-                if status.retweeted_status.truncated == True:
-                    tweet_txt = status.retweeted_status.extended_tweet['full_text']
-                else:
-                    tweet_txt = status.retweeted_status.text
-            elif status.truncated == True:
-                tweet_txt = status.extended_tweet['full_text']
-                original_id = 0
+                pass
             else:
-                tweet_txt = status.text
-                original_id = 0
+                if status.truncated == True:
+                    tweet_txt = status.extended_tweet['full_text']
+                else:
+                    tweet_txt = status.text
 
-            user_id = status.user.id
-            user_geo = status.geo
-            created_at = status.created_at
-            lang = status.lang
+                user_id = status.user.id
+                user_name=status.user.name
+                user_geo = status.geo
+                created_at = status.created_at
+                lang = status.lang
 
-            entities = status.entities
-            retweet_count = status.retweet_count
-            print("tweet_id :",tweet_id)
-            Sentiment = sentiment_analysis(tweet_txt)
-            twitter_data = {
-                        "text": tweet_txt,
-                        "tweet_id": str(tweet_id) ,
-                        "user_id": str(user_id),
-                        "geo": user_geo,
-                        "lang": lang,
-                        "retweet_count": int(retweet_count),
-                        "created_time" :   created_at,
-                        "tag" : self.query,
-                        "sentiment" : Sentiment,
-                        "original_id": original_id,
-                        "entities": entities,
-                        "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
-                    }
-            Twitter.insert_one(twitter_data)
+                entities = status.entities
+                retweet_count = status.retweet_count
+                print("tweet_id :",tweet_id)
+                Sentiment = sentiment_analysis(tweet_txt)
+                twitter_data = {
+                            "source":"twitter",
+                            "text": tweet_txt,
+                            "id": str(tweet_id) ,
+                            "tag" : self.query,
+                            "sentiment" : Sentiment,
+                            "created_time" :   created_at,
+                            "misc":{
+                            "user_name":user_name,
+                            "user_id": str(user_id),
+                            "retweet_count": int(retweet_count),
+                            "geo": user_geo,
+                            "lang": lang,
+                            "entities": entities,
+                            },
+                            "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
+                        }
+                Twitter.insert_one(twitter_data)
             if (time.time() - self.start_time) > self.limit:
                 # print(time.time(), self.start_time, self.limit)
                 return False
@@ -97,49 +96,44 @@ def twitter_past(q,count=3000):
             Count +=1
             print(tweet_id)
             if status.full_text[:2] == "RT @ ":
-                is_retweet = True
-                user_id = status.user.id
-                user_geo = status.retweeted_status.geo
-                original_id=status.retweeted_status.id
-                if status.retweeted_status.truncated == True:
-                    tweet_txt = status.retweeted_status.extended_tweet['full_text']
-                else:
-                    tweet_txt = status.retweeted_status.full_text
-
-            elif status.truncated == True:
-                is_retweet = False
-                user_id = status.user.id
-                user_geo = status.geo
-                original_id= 0
-                tweet_txt = status.extended_tweet['full_text']
-
+                pass
             else:
-                is_retweet = False
-                user_id = status.user.id
-                user_geo = status.geo
-                original_id= 0
-                tweet_txt = status.full_text
-            created_at = status.created_at
-            lang = status.lang
-            entities = status.entities
-            retweet_count = status.retweet_count
-            Sentiment = sentiment_analysis(tweet_txt)
+                if status.truncated == True:
+                    is_retweet = False
+                    user_id = status.user.id
+                    user_geo = status.geo
+                    tweet_txt = status.extended_tweet['full_text']
 
-            twitter_data = {
-                                "text": tweet_txt,
-                                "tweet_id": str(tweet_id ),
-                                "user_id": str(user_id),
-                                "geo": user_geo,
-                                "lang": lang,
-                                "retweet_count": int(retweet_count),
-                                "created_time" : created_at,
-                                "tag" : q,
-                                "sentiment" : Sentiment,
-                                "original_id":original_id,
-                                "entities" : entities,
-                                "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
-                            }
-            Twitter.insert_one(twitter_data)
+                else:
+                    is_retweet = False
+                    user_id = status.user.id
+                    user_name=status.user.name
+                    user_geo = status.geo
+                    tweet_txt = status.full_text
+                created_at = status.created_at
+                lang = status.lang
+                entities = status.entities
+                retweet_count = status.retweet_count
+                Sentiment = sentiment_analysis(tweet_txt)
+
+                twitter_data = {
+                            "source":"twitter",
+                            "text": tweet_txt,
+                            "id": str(tweet_id) ,
+                            "tag" : q,
+                            "sentiment" : Sentiment,
+                            "created_time" :   created_at,
+                            "misc":{
+                            "user_name":user_name,
+                            "user_id": str(user_id),
+                            "retweet_count": int(retweet_count),
+                            "geo": user_geo,
+                            "lang": lang,
+                            "entities": entities,
+                            },
+                            "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
+                        }
+                Twitter.insert_one(twitter_data)
     return ("Extracted twitter data")
 
 def twitter_stream(q,t=15*60):
