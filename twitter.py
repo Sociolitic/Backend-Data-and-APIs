@@ -95,7 +95,7 @@ def twitter_past(q,count=3000):
         if (db.twitter.find({"tweet_id":tweet_id}).count() > 0)== False:
             Count +=1
             print(tweet_id)
-            if status.full_text[:2] == "RT @ ":
+            if status.full_text[:4] == "RT @":
                 pass
             else:
                 if status.truncated == True:
