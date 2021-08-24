@@ -42,7 +42,7 @@ def reddithot(Search,number=100):
                 "comments" : comments,
                 "url": submission.url,
                 "comments_num": submission.num_comments,
-                "Body": submission.selftext},
+                "body": submission.selftext},
                 "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
                 }
                 Reddit.insert_one(reddit_data)
@@ -77,7 +77,7 @@ def reddittop(Search,number=100):
                 "comments" : comments,
                 "url": submission.url,
                 "comments_num": submission.num_comments,
-                "Body": submission.selftext},
+                "body": submission.selftext},
                 "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
                 }
                 Reddit.insert_one(reddit_data)
@@ -112,7 +112,7 @@ def redditnew(Search,number=100):
                 "comments" : comments,
                 "url": submission.url,
                 "comments_num": submission.num_comments,
-                "Body": submission.selftext},
+                "body": submission.selftext},
                 "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
                 }
                 Reddit.insert_one(reddit_data)
