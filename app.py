@@ -8,6 +8,8 @@ from tumblr import *
 # from insta import *
 from twitter import *
 from sentiment import *
+from Aggregate import *
+
 
 app = Flask(__name__)
 
