@@ -19,3 +19,5 @@ emoji
 google_trans_new
 textblob
 nltk
+click==7.1.1
+exit
