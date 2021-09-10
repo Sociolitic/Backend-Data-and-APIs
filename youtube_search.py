@@ -10,6 +10,7 @@ import dns
 import datetime
 from sentiment import *
 from dateutil.parser import parse
+from ner import *
 
 
 client = pymongo.MongoClient("mongodb+srv://KokilaReddy:KokilaReddy@cluster0.5nrpf.mongodb.net/Sociolitic?retryWrites=true&w=majority")
@@ -88,6 +89,7 @@ def youtube_search(q, max_results,order="date", token=None, location=None, locat
             'tag' : q,
             "sentiment":Sentiment,
             'created_time': parse(datetime.datetime.strptime(response['items'][0]['snippet']['publishedAt'], '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d %H:%M:%S')),
+            "ner": tags(search_result['snippet']['title']),
             'misc':{
             'tags': Tags,
             'channelId': str(response['items'][0]['snippet']['channelId']),

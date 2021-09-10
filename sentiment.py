@@ -3,7 +3,6 @@ from nltk.tokenize import word_tokenize
 from google_trans_new import google_translator
 from nltk.stem.wordnet import WordNetLemmatizer
 from textblob import TextBlob
-from langdetect import detect
 import nltk
 nltk.download("punkt")
 nltk.download('wordnet')

@@ -9,6 +9,7 @@ from tumblr import *
 from twitter import *
 from sentiment import *
 from Aggregate import *
+from ner import *
 
 
 app = Flask(__name__)
@@ -107,6 +108,12 @@ def All_data():
 	twitter_past(Search)
 	twitter_stream(q=Search)
 	return True
+
+@app.route('/ner/',methods=['GET'])
+def namedER():
+    sentence = request.args.get('q')
+    return tags(sentence)
+
 
 @app.route('/mentions/',methods=['GET'])
 def mention():

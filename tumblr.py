@@ -6,6 +6,7 @@ import dns
 import datetime
 import time
 from sentiment import *
+from ner import *
 from dateutil.parser import parse
 
 
@@ -48,6 +49,7 @@ def tumblrsearch(search):
             "sentiment":Sentiment,
             "tag" : search,
             "created_time" : parse(datetime.datetime.fromtimestamp(blog["timestamp"]).strftime('%Y-%m-%d %H:%M:%S')),
+            "ner": tags(Title),
             "misc":{"blog_name": blog["blog_name"],
             "body": Body,
             "url": blog["post_url"],

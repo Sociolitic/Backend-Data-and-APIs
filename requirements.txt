@@ -9,6 +9,7 @@ dnspython
 pymongo[srs]
 datetime
 tweepy
+spacy
 langdetect
 instagrapi
 pillow

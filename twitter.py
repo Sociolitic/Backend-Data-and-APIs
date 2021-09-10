@@ -5,6 +5,8 @@ import datetime
 import dns
 import datetime
 from sentiment import *
+from ner import *
+
 
 
 consumer_key = "zr6Q2eouAo0eID46lwC0rbeUo"
@@ -61,6 +63,7 @@ class MyStreamListener(tweepy.StreamListener):
                             "tag" : self.query,
                             "sentiment" : Sentiment,
                             "created_time" :   created_at,
+                            "ner": tags(tweet_txt),
                             "misc":{
                             "user_name":user_name,
                             "user_id": str(user_id),
@@ -123,6 +126,7 @@ def twitter_past(q,count=3000):
                             "tag" : q,
                             "sentiment" : Sentiment,
                             "created_time" :   created_at,
+                            "ner": tags(tweet_txt),
                             "misc":{
                             "user_name":user_name,
                             "user_id": str(user_id),
