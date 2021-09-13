@@ -40,8 +40,11 @@ def normalization(sentence,tokenize=True):
     sent = word_tokenize(sentence)
     sent = (word for word in sent if word.isalpha())
     lemmatizer = WordNetLemmatizer()
-    lem_sent = [lemmatizer.lemmatize(words_sent) for words_sent in sent]
-    sentence = [' '.join(lem_sent)]
+    try:
+        lem_sent = [lemmatizer.lemmatize(words_sent) for words_sent in sent]
+        sentence = [' '.join(lem_sent)]
+    except:
+        sentence = [' '.join(sent)]
     return sentence[0]
 def sentiment_analysis(tweet):
     tweet = normalization(tweet)

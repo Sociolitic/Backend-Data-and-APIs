@@ -10,6 +10,7 @@ import dns
 import datetime
 from sentiment import *
 from dateutil.parser import parse
+from ner import *
 
 
 client = pymongo.MongoClient("mongodb+srv://KokilaReddy:KokilaReddy@cluster0.5nrpf.mongodb.net/Sociolitic?retryWrites=true&w=majority")
