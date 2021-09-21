@@ -44,14 +44,14 @@ def tumblrsearch(search):
                 Sentiment = sentiment_analysis(blog["caption"])
             tumblr_data = {
             "source":"tumblr",
-            "text": Title,
+            "text": Body,
             "id": str(blog["id"]),
             "sentiment":Sentiment,
             "tag" : search,
             "created_time" : parse(datetime.datetime.fromtimestamp(blog["timestamp"]).strftime('%Y-%m-%d %H:%M:%S')),
             "ner": tags(Title),
             "misc":{"blog_name": blog["blog_name"],
-            "body": Body,
+            "title": Title,
             "url": blog["post_url"],
             "tags": blog["tags"],
             "summary": blog["summary"],},
