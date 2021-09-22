@@ -91,6 +91,7 @@ def youtube_search(q, max_results,order="date", token=None, location=None, locat
             'created_time': parse(datetime.datetime.strptime(response['items'][0]['snippet']['publishedAt'], '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d %H:%M:%S')),
             "ner": tags(search_result['snippet']['title']),
             'misc':{
+            'url': "http://www.youtube.com/watch?v="+str(search_result['id']['videoId']),
             'tags': Tags,
             'channelId': str(response['items'][0]['snippet']['channelId']),
             'channelTitle': response['items'][0]['snippet']['channelTitle'],
