@@ -19,7 +19,7 @@ def mentions(tag):
     twitter_neg=[0]*71
     twitter_neu=[0]*71
     for data in twitter:
-        for i in range (1,25):
+        for i in range (24,0,-1):
             if (data["created_time"] < datetime.now()- timedelta(hours = i-1) and data["created_time"] > datetime.now()- timedelta(hours = i)):
                 twitter_count[i-1]+=1
                 if data["sentiment"]=="Positive":
@@ -29,7 +29,7 @@ def mentions(tag):
                 else:
                     twitter_neu[i-1]+=1
         i=24
-        for j in range (1,31):
+        for j in range (30,0,-1):
             if (data["created_time"] < datetime.now()- timedelta(days = j-1) and data["created_time"] > datetime.now()- timedelta(days = j)):
                 twitter_count[i]+=1
                 if data["sentiment"]=="Positive":
@@ -40,7 +40,7 @@ def mentions(tag):
                     twitter_neu[i]+=1
             i+=1
         i=54
-        for j in range (1,13):
+        for j in range (12,0,-1):
             if (data["created_time"] < datetime.now()- relativedelta(months = j-1) and data["created_time"] > datetime.now()- relativedelta(months = j)):
                 twitter_count[i]+=1
                 if data["sentiment"]=="Positive":
@@ -51,7 +51,7 @@ def mentions(tag):
                     twitter_neu[i]+=1
             i+=1
         i=66
-        for j in range (1,5):
+        for j in range (5,0,-1):
             if (data["created_time"] < datetime.now()-relativedelta(years = j-1) and data["created_time"] > datetime.now()- relativedelta(years = j)):
                 twitter_count[i]+=1
                 if data["sentiment"]=="Positive":
@@ -67,7 +67,7 @@ def mentions(tag):
     reddit_neg=[0]*71
     reddit_neu=[0]*71
     for data in reddit:
-        for i in range (1,25):
+        for i in range (24,0,-1):
             if ((data["created_time"] )< datetime.now()- timedelta(hours = i-1) and (data["created_time"] )> datetime.now()- timedelta(hours = i)):
                 reddit_count[i-1]+=1
                 if data["sentiment"]=="Positive":
@@ -77,7 +77,7 @@ def mentions(tag):
                 else:
                     reddit_neu[i-1]+=1
         i=24
-        for j in range (1,31):
+        for j in range (30,0,-1):
             if ((data["created_time"] )< datetime.now()- timedelta(days = j-1) and (data["created_time"] )> datetime.now()- timedelta(days = j)):
                 reddit_count[i]+=1
                 if data["sentiment"]=="Positive":
@@ -88,7 +88,7 @@ def mentions(tag):
                     reddit_neu[i]+=1
             i+=1
         i=54
-        for j in range (1,13):
+        for j in range (12,0,-1):
             if ((data["created_time"] )< datetime.now()- relativedelta(months = j-1) and (data["created_time"] )> datetime.now()- relativedelta(months = j)):
                 reddit_count[i]+=1
                 if data["sentiment"]=="Positive":
@@ -99,7 +99,7 @@ def mentions(tag):
                     reddit_neu[i]+=1
             i+=1
         i=66
-        for j in range (1,5):
+        for j in range (5,0,-1):
             if ((data["created_time"] )< datetime.now()-relativedelta(years = j-1) and (data["created_time"] )> datetime.now()- relativedelta(years = j)):
                 reddit_count[i]+=1
                 if data["sentiment"]=="Positive":
@@ -115,7 +115,7 @@ def mentions(tag):
     tumblr_neg=[0]*71
     tumblr_neu=[0]*71
     for data in tumblr:
-        for i in range (1,25):
+        for i in range (24,0,-1):
             if ((data["created_time"] )< datetime.now()- timedelta(hours = i-1) and (data["created_time"] )> datetime.now()- timedelta(hours = i)):
                 tumblr_count[i-1]+=1
                 if data["sentiment"]=="Positive":
@@ -125,7 +125,7 @@ def mentions(tag):
                 else:
                     tumblr_neu[i-1]+=1
         i=24
-        for j in range (1,31):
+        for j in range (30,0,-1):
             if ((data["created_time"] )< datetime.now()- timedelta(days = j-1) and (data["created_time"] )> datetime.now()- timedelta(days = j)):
                 tumblr_count[i]+=1
                 if data["sentiment"]=="Positive":
@@ -136,7 +136,7 @@ def mentions(tag):
                     tumblr_neu[i]+=1
             i+=1
         i=54
-        for j in range (1,13):
+        for j in range (12,0,-1):
             if ((data["created_time"] )< datetime.now()- relativedelta(months = j-1) and (data["created_time"] )> datetime.now()- relativedelta(months = j)):
                 tumblr_count[i]+=1
                 if data["sentiment"]=="Positive":
@@ -147,7 +147,7 @@ def mentions(tag):
                     tumblr_neu[i]+=1
             i+=1
         i=66
-        for j in range (1,5):
+        for j in range (5,0,-1):
             if ((data["created_time"] )< datetime.now()-relativedelta(years = j-1) and (data["created_time"] )> datetime.now()- relativedelta(years = j)):
                 tumblr_count[i]+=1
                 if data["sentiment"]=="Positive":
@@ -163,7 +163,7 @@ def mentions(tag):
     youtube_neg=[0]*71
     youtube_neu=[0]*71
     for data in youtube:
-        for i in range (1,25):
+        for i in range (24,0,-1):
             if ((data["created_time"] )< datetime.now()- timedelta(hours = i-1) and (data["created_time"] )> datetime.now()- timedelta(hours = i)):
                 youtube_count[i-1]+=1
                 if data["sentiment"]=="Positive":
@@ -173,7 +173,7 @@ def mentions(tag):
                 else:
                     youtube_neu[i-1]+=1
         i=24
-        for j in range (1,31):
+        for j in range (30,0,-1):
             if ((data["created_time"] )< datetime.now()- timedelta(days = j-1) and (data["created_time"] )> datetime.now()- timedelta(days = j)):
                 youtube_count[i]+=1
                 if data["sentiment"]=="Positive":
@@ -184,7 +184,7 @@ def mentions(tag):
                     youtube_neu[i]+=1
             i+=1
         i=54
-        for j in range (1,13):
+        for j in range (12,0,-1):
             if ((data["created_time"] )< datetime.now()- relativedelta(months = j-1) and (data["created_time"] )> datetime.now()- relativedelta(months = j)):
                 youtube_count[i]+=1
                 if data["sentiment"]=="Positive":
@@ -195,7 +195,7 @@ def mentions(tag):
                     youtube_neu[i]+=1
             i+=1
         i=66
-        for j in range (1,5):
+        for j in range (5,0,-1):
             if ((data["created_time"] )< datetime.now()-relativedelta(years = j-1) and (data["created_time"] )> datetime.now()- relativedelta(years = j)):
                 youtube_count[i]+=1
                 if data["sentiment"]=="Positive":
