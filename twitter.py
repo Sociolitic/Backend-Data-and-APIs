@@ -128,8 +128,8 @@ def twitter_past(q,count=3000):
                             "sentiment" : Sentiment,
                             "created_time" :   created_at,
                             "ner": tags(tweet_txt),
-                            "misc":{
                             "url":"https://twitter.com/i/web/status/"+str(tweet_id),
+                            "misc":{
                             "user_name":user_name,
                             "user_id": str(user_id),
                             "retweet_count": int(retweet_count),
