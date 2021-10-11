@@ -42,17 +42,22 @@ def tumblrsearch(search):
                 Title = "image"
                 Body = blog["caption"]
                 Sentiment = sentiment_analysis(blog["caption"])
+            if Title == "" or Title == "image":
+                if Body != "":
+                    Title = Body
+                else:
+                    Title = blog["summary"]
             tumblr_data = {
             "source":"tumblr",
-            "text": Body,
+            "text": Title,
             "id": str(blog["id"]),
             "sentiment":Sentiment,
             "tag" : search,
             "created_time" : parse(datetime.datetime.fromtimestamp(blog["timestamp"]).strftime('%Y-%m-%d %H:%M:%S')),
             "ner": tags(Title),
-            "misc":{"blog_name": blog["blog_name"],
-            "title": Title,
             "url": blog["post_url"],
+            "misc":{"blog_name": blog["blog_name"],
+            "body": Body,
             "tags": blog["tags"],
             "summary": blog["summary"],},
             "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()

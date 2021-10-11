@@ -40,9 +40,9 @@ def reddithot(Search,number=100):
                 "sentiment" : Sentiment,
                 "created_time" : parse(datetime.datetime.fromtimestamp(submission.created).strftime('%Y-%m-%d %H:%M:%S')),
                 "ner": tags(submission.title),
+                "url": submission.url,
                 "misc":{"score": submission.score,
                 "comments" : comments,
-                "url": submission.url,
                 "comments_num": submission.num_comments,
                 "body": submission.selftext},
                 "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
@@ -76,9 +76,9 @@ def reddittop(Search,number=100):
                 "sentiment" : Sentiment,
                 "created_time" : parse(datetime.datetime.fromtimestamp(submission.created).strftime('%Y-%m-%d %H:%M:%S')),
                 "ner": tags(submission.title),
+                "url": submission.url,
                 "misc":{"score": submission.score,
                 "comments" : comments,
-                "url": submission.url,
                 "comments_num": submission.num_comments,
                 "body": submission.selftext},
                 "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
@@ -112,9 +112,9 @@ def redditnew(Search,number=100):
                 "sentiment" : Sentiment,
                 "created_time" : parse(datetime.datetime.fromtimestamp(submission.created).strftime('%Y-%m-%d %H:%M:%S')),
                 "ner": tags(submission.title),
+                "url": submission.url,
                 "misc":{"score": submission.score,
                 "comments" : comments,
-                "url": submission.url,
                 "comments_num": submission.num_comments,
                 "body": submission.selftext},
                 "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
