@@ -25,7 +25,7 @@ def tumblrsearch(search):
     output=client.tagged(tag=search,filter="text")
 
     for blog in output:
-        if (db.tumblr.find({"id":blog["id"]}).count() > 0)== False:
+         if (db.tumblr.find({"id":blog["id"]}).count() > 0)== False:
             if "caption" not in blog:
                 if 'title' in blog:
                     Title = blog["title"]
