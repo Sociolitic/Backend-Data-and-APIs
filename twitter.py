@@ -6,8 +6,7 @@ import dns
 import datetime
 from sentiment import *
 from ner import *
-
-
+from twitter_spam_filter import *
 
 consumer_key = "zr6Q2eouAo0eID46lwC0rbeUo"
 consumer_secret = "5G5MwRU2L3F9LSkjqmrhkdqnAG8f4hSIxt5XNaP54YrGZ2K6Yr"
@@ -51,7 +50,6 @@ class MyStreamListener(tweepy.StreamListener):
                 user_geo = status.geo
                 created_at = status.created_at
                 lang = status.lang
-
                 entities = status.entities
                 retweet_count = status.retweet_count
                 print("tweet_id :",tweet_id)
@@ -65,6 +63,7 @@ class MyStreamListener(tweepy.StreamListener):
                             "created_time" :   created_at,
                             "ner": tags(tweet_txt),
                             "url":"https://twitter.com/i/web/status/"+str(tweet_id),
+                            "spam":is_spam(tweet_txt)[0],
                             "misc":{
                             "user_name":user_name,
                             "user_id": str(user_id),
@@ -119,7 +118,6 @@ def twitter_past(q,count=3000):
                 entities = status.entities
                 retweet_count = status.retweet_count
                 Sentiment = sentiment_analysis(tweet_txt)
-
                 twitter_data = {
                             "source":"twitter",
                             "text": tweet_txt,
@@ -129,6 +127,7 @@ def twitter_past(q,count=3000):
                             "created_time" :   created_at,
                             "ner": tags(tweet_txt),
                             "url":"https://twitter.com/i/web/status/"+str(tweet_id),
+                            # "spam":is_spam(tweet_txt)[0],
                             "misc":{
                             "user_name":user_name,
                             "user_id": str(user_id),

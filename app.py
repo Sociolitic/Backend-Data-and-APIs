@@ -10,6 +10,8 @@ from twitter import *
 from sentiment import *
 from Aggregate import *
 from ner import *
+from time_dependent_aggregate import *
+from ner_aggregate import *
 
 
 app = Flask(__name__)
@@ -119,6 +121,16 @@ def namedER():
 def mention():
 	Search = request.args.get('q')
 	return mentions(Search)
+
+@app.route('/ner_mentions/',methods=['GET'])
+def ner_mention():
+	Search = request.args.get('q')
+	return ner_mentions(Search)
+
+@app.route('/aggregate/',methods=['GET'])
+def aggregate():
+	Search = request.args.get('q')
+	return get_data(Search)
 
 if __name__ == '__main__':
 	app.run(debug=False,host='0.0.0.0')

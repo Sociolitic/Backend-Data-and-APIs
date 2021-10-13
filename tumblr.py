@@ -56,6 +56,7 @@ def tumblrsearch(search):
             "created_time" : parse(datetime.datetime.fromtimestamp(blog["timestamp"]).strftime('%Y-%m-%d %H:%M:%S')),
             "ner": tags(Title),
             "url": blog["post_url"],
+            "spam":False,
             "misc":{"blog_name": blog["blog_name"],
             "body": Body,
             "tags": blog["tags"],

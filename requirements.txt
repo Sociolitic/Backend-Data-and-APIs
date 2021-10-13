@@ -22,3 +22,8 @@ nltk
 click==7.1.1
 exit
 truecase
+collections
+calendar
+warnings
+random
+pickle

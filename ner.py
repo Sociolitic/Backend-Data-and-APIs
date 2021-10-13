@@ -14,8 +14,10 @@ def normalization_(sentence,tokenize=True):
    sentence = html.unescape(sentence)
    regex = re.compile(r'[\n\r\t]')
    sentence = regex.sub(" ", sentence)
-   sentence = re.sub(r'http\S+', '', sentence)
+   sentence = re.sub(r'http[^\s]+', '', sentence)
    sentence = re.sub('@[^\s]+','',sentence)
+   sentence = re.sub('/',' ',sentence)
+   sentence = re.sub('[^A-Za-z]', ' ', sentence)
    try:
           lang = detect(sentence)
           if lang != 'en':
@@ -57,42 +59,43 @@ def tags(sentence):
         res.append(ent.text)
         res.append(ent.label_)
     for i in range(1,len(res)):
-        if res[i] == "CARDINAL":
-            Cardinal.append(res[i-1])
-        elif res[i]== "DATE":
-            Date.append(res[i-1])
-        elif res[i]=="EVENT":
-            Event.append(res[i-1])
-        elif res[i]=="FAC":
-            Fac.append(res[i-1])
-        elif res[i]=="GPE":
-            Gpe.append(res[i-1])
-        elif res[i]=="LANGUAGE":
-            Language.append(res[i-1])
-        elif res[i]=="LAW":
-            Law.append(res[i-1])
-        elif res[i]=="LOC":
-            Loc.append(res[i-1])
-        elif res[i]=="MONEY":
-            Money.append(res[i-1])
-        elif res[i]=="NORP":
-            Norp.append(res[i-1])
-        elif res[i]=="ORDINAL":
-            Ordinal.append(res[i-1])
-        elif res[i]=="ORG":
-            Org.append(res[i-1])
-        elif res[i]== "PERCENT":
-            Percent.append(res[i-1])
-        elif res[i]== "PERSON" :
-            Person.append(res[i-1])
-        elif res[i]=="PRODUCT":
-            Product.append(res[i-1])
-        elif res[i]=="QUANTITY":
-            Quantity.append(res[i-1])
-        elif res[i]=="TIME":
-            Time.append(res[i-1])
-        elif res[i]=="WORK_OF_ART":
-            Work_of_art.append(res[i-1])
+        if (tag.lower() not in res[i-1].lower()):
+            if res[i] == "CARDINAL":
+                Cardinal.append(res[i-1])
+            elif res[i]== "DATE":
+                Date.append(res[i-1])
+            elif res[i]=="EVENT":
+                Event.append(res[i-1])
+            elif res[i]=="FAC":
+                Fac.append(res[i-1])
+            elif res[i]=="GPE":
+                Gpe.append(res[i-1])
+            elif res[i]=="LANGUAGE":
+                Language.append(res[i-1])
+            elif res[i]=="LAW":
+                Law.append(res[i-1])
+            elif res[i]=="LOC":
+                Loc.append(res[i-1])
+            elif res[i]=="MONEY":
+                Money.append(res[i-1])
+            elif res[i]=="NORP":
+                Norp.append(res[i-1])
+            elif res[i]=="ORDINAL":
+                Ordinal.append(res[i-1])
+            elif res[i]=="ORG":
+                Org.append(res[i-1])
+            elif res[i]== "PERCENT":
+                Percent.append(res[i-1])
+            elif res[i]== "PERSON" :
+                Person.append(res[i-1])
+            elif res[i]=="PRODUCT":
+                Product.append(res[i-1])
+            elif res[i]=="QUANTITY":
+                Quantity.append(res[i-1])
+            elif res[i]=="TIME":
+                Time.append(res[i-1])
+            elif res[i]=="WORK_OF_ART":
+                Work_of_art.append(res[i-1])
         i+=1
-    result={"CARDINAL":Cardinal,"DATE":Date,"EVENT":Event,"FAC":Fac,"GPE":Gpe,"LANGUAGE":Language,"LAW":Law,"LOC":Loc,"MONEY":Money,"NORP":Norp,"ORDINAL":Ordinal,"ORG":Org,"PERCENT":Percent,"PERSON":Person,"PRODUCT":Product,"QUNATITY":Quantity,"TIME":Time,"WORK_OF_ART":Work_of_art}
+    result={"CARDINAL":list(set(Cardinal)),"DATE":list(set(Date)),"EVENT":list(set(Event)),"FAC":list(set(Fac)),"GPE":list(set(Gpe)),"LANGUAGE":list(set(Language)),"LAW":list(set(Law)),"LOC":list(set(Loc)),"MONEY":list(set(Money)),"NORP":list(set(Norp)),"ORDINAL":list(set(Ordinal)),"ORG":list(set(Org)),"PERCENT":list(set(Percent)),"PERSON":list(set(Person)),"PRODUCT":list(set(Product)),"QUNATITY":list(set(Quantity)),"TIME":list(set(Time)),"WORK_OF_ART":list(set(Work_of_art))}
     return result
