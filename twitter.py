@@ -63,7 +63,7 @@ class MyStreamListener(tweepy.StreamListener):
                             "created_time" :   created_at,
                             "ner": tags(tweet_txt),
                             "url":"https://twitter.com/i/web/status/"+str(tweet_id),
-                            "spam":is_spam(tweet_txt)[0],
+                            "spam":False,
                             "misc":{
                             "user_name":user_name,
                             "user_id": str(user_id),
@@ -127,7 +127,7 @@ def twitter_past(q,count=3000):
                             "created_time" :   created_at,
                             "ner": tags(tweet_txt),
                             "url":"https://twitter.com/i/web/status/"+str(tweet_id),
-                            # "spam":is_spam(tweet_txt)[0],
+                            "spam":False,
                             "misc":{
                             "user_name":user_name,
                             "user_id": str(user_id),
