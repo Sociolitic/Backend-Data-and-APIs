@@ -12,6 +12,9 @@ from Aggregate import *
 from ner import *
 from time_dependent_aggregate import *
 from ner_aggregate import *
+from bson.objectid import ObjectId
+import pymongo
+from pymongo import MongoClient
 
 
 app = Flask(__name__)
@@ -131,6 +134,34 @@ def ner_mention():
 def aggregate():
 	Search = request.args.get('q')
 	return get_data(Search)
+
+@app.route('/deletion/',methods=['GET'])
+def deletion():
+	id_ = request.args.get('id')
+	x = db["aggregate"].find({"profiles":str(id_)},{"_id","profiles"})
+	try:
+	    profiles = x[0]["profiles"]
+	    profiles.remove(str(id_))
+	    output1 = {"profiles":profiles,"updatedAt": datetime.now()}
+	    db["aggregate"].update_one({"_id":x[0]["_id"]},{"$set":output1})
+	except:
+		return "Done"
+	return "done"
+
+@app.route('/insertion/',methods=['GET'])
+def insertion():
+	id_ = request.args.get('id')
+	x = db["profile"].find({"_id":ObjectId(id_)},{"brand"})
+	try:
+		data = db["aggregate"].find({"tag":x[0]["brand"]},{"_id","profiles"})
+		profiles = data[0]["profiles"]
+		profiles.append(str(x[0]["_id"]))
+		output1 = {"profiles":profiles,"updatedAt": datetime.now()}
+		db["aggregate"].update_one({"_id":data[0]["_id"]},{"$set":output1})
+	except:
+		return "Done"
+	return "done"
+
 
 if __name__ == '__main__':
 	app.run(debug=False,host='0.0.0.0')
