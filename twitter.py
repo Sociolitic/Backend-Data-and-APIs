@@ -95,7 +95,7 @@ def twitter_past(q,count=3000):
         tweet_id = status.id
         if (Count == count ):
             return "Done"
-        if (db.twitter.find({"tweet_id":tweet_id}).count() > 0)== False:
+        if (db.twitter.find({"id":tweet_id}).count() > 0)== False:
             Count +=1
             print(tweet_id)
             if status.full_text[:4] == "RT @":

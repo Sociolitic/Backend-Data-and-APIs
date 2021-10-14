@@ -55,7 +55,7 @@ def youtube_search(q, max_results,order="date", token=None, location=None, locat
     locationRadius=location_radius).execute()
 
     for search_result in search_response.get("items", []):
-        if (db.youTube.find({'videoId':search_result['id']['videoId']}).count() > 0)== False:
+        if (db.youTube.find({'id':search_result['id']['videoId']}).count() > 0)== False:
             if search_result["id"]["kind"] == "youtube#video":
                 response = youtube.videos().list(
                 part="statistics,snippet", # Part signifies the different types of data you want
