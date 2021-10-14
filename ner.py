@@ -59,7 +59,6 @@ def tags(sentence):
         res.append(ent.text)
         res.append(ent.label_)
     for i in range(1,len(res)):
-        if (tag.lower() not in res[i-1].lower()):
             if res[i] == "CARDINAL":
                 Cardinal.append(res[i-1])
             elif res[i]== "DATE":
