@@ -95,6 +95,6 @@ def tags(sentence):
                 Time.append(res[i-1])
             elif res[i]=="WORK_OF_ART":
                 Work_of_art.append(res[i-1])
-        i+=1
+            i+=1
     result={"CARDINAL":list(set(Cardinal)),"DATE":list(set(Date)),"EVENT":list(set(Event)),"FAC":list(set(Fac)),"GPE":list(set(Gpe)),"LANGUAGE":list(set(Language)),"LAW":list(set(Law)),"LOC":list(set(Loc)),"MONEY":list(set(Money)),"NORP":list(set(Norp)),"ORDINAL":list(set(Ordinal)),"ORG":list(set(Org)),"PERCENT":list(set(Percent)),"PERSON":list(set(Person)),"PRODUCT":list(set(Product)),"QUNATITY":list(set(Quantity)),"TIME":list(set(Time)),"WORK_OF_ART":list(set(Work_of_art))}
     return result
