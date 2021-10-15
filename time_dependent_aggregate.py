@@ -167,7 +167,7 @@ def get_data(tag):
         x,y = calendar.monthrange(todays_date.year, todays_date.month)
         days= days_(1,y,tag)
         hours = hours_(0,24,tag)
-        minutes = minutes_(0,24,tag)
+        minutes = minutes_(0,60,tag)
         output = {
             "tag":tag,
             "profiles":profiles,
