@@ -105,10 +105,13 @@ def data_(start,end,tag):
             tumblr = tumblr_neu+tumblr_neg+tumblr_pos
             twitter = twitter_pos+twitter_neg+twitter_neu
             data = {
+                        "start":start,
+                        "end":end,
                         "total":twitter+tumblr+youtube+reddit,
                         "positive":reddit_pos+youtube_pos+tumblr_pos+twitter_pos,
                         "negative":reddit_neg+youtube_neg+tumblr_neg+twitter_neg,
                         "neutral":reddit_neu+youtube_neu+tumblr_neu+twitter_neu,
+                        "sources":{
                         "reddit":
                         {
                             "total":reddit,
@@ -137,9 +140,18 @@ def data_(start,end,tag):
                             "negative":twitter_neg,
                             "neutral":twitter_neu
                         }
+                        }
                     }
             return data
 
+def merge_data(c):
+    start = c[0]["start"]
+    end = c[-1]["end"]
+    c = [{k: v for k, v in d.items() if k not in ['start','end']} for d in c]
+    c = merge(c)
+    c["start"]=start
+    c["end"]=end
+    return c
 def merge(c):
     _keys = {i for b in c for i in b}
     return {i:[sum, merge][isinstance(c[0][i], dict)]([h[i] for h in c]) for i in _keys}
@@ -155,7 +167,7 @@ def get_data(tag):
         x,y = calendar.monthrange(todays_date.year, todays_date.month)
         days= days_(1,y,tag)
         hours = hours_(0,24,tag)
-        minutes = minutes_(0,60,tag)
+        minutes = minutes_(0,24,tag)
         output = {
             "tag":tag,
             "profiles":profiles,
@@ -196,17 +208,17 @@ def get_data(tag):
             end =  datetime(year,month,day,hour,minute,59)
             minutes[todays_date.minute-1] = data_(start,end,tag)
             if(minutes[-1]!='x'):
-                hours[todays_date.hour-1] = merge(minutes)
+                hours[todays_date.hour-1] = merge_data(minutes)
                 minutes = ['x']*60
             if(hours[-1]!='x'):
-                days[todays_date.day-1] = merge(hours)
+                days[todays_date.day-1] = merge_data(hours)
                 hours = ['x']*24
             if(days[-1]!='x'):
-                months[todays_date.month-1] = merge(days)
+                months[todays_date.month-1] = merge_data(days)
                 x,y = calendar.monthrange(todays_date.year, todays_date.month)
                 days = ['x']*y
             if(months[-1]!='x'):
-                years.append(merge(months))
+                years.append(merge_data(months))
                 months = ["x"] * 12
             output1 = {
                 "years":years,
@@ -297,17 +309,17 @@ def get_data(tag):
             end =  datetime(year,month,day,hour,minute,59)
             minutes[todays_date.minute-1] = data_(start,end,tag)
             if(minutes[-1]!='x'):
-                hours[todays_date.hour-1] = merge(minutes)
+                hours[todays_date.hour-1] = merge_data(minutes)
                 minutes = ['x']*60
             if(hours[-1]!='x'):
-                days[todays_date.day-1] = merge(hours)
+                days[todays_date.day-1] = merge_data(hours)
                 hours = ['x']*24
             if(days[-1]!='x'):
-                months[todays_date.month-1] = merge(days)
+                months[todays_date.month-1] = merge_data(days)
                 x,y = calendar.monthrange(todays_date.year, todays_date.month)
                 days = ['x']*y
             if(months[-1]!='x'):
-                years.append(merge(months))
+                years.append(merge_data(months))
                 months = ["x"] * 12
             output1 = {
                 "years":years,
