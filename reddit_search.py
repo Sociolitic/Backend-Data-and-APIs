@@ -17,7 +17,7 @@ client = pymongo.MongoClient("mongodb+srv://KokilaReddy:KokilaReddy@cluster0.5nr
 db = client.Social_media_data
 Reddit = db.reddit
 
-def reddithot(Search,number=100):
+def reddithot(Search,number=1000):
     reddit = praw.Reddit(client_id='qReU5pXkg46LcA', client_secret='HmxBqKB7ua_rbNVW3_8BUAg3kvlE4Q', user_agent='media monitoring')
     subreddit = reddit.subreddit(Search).hot(limit=number)
     top_subreddit = subreddit
@@ -54,7 +54,7 @@ def reddithot(Search,number=100):
 
     return "Done"
 
-def reddittop(Search,number=100):
+def reddittop(Search,number=1000):
     reddit = praw.Reddit(client_id='qReU5pXkg46LcA', client_secret='HmxBqKB7ua_rbNVW3_8BUAg3kvlE4Q', user_agent='media monitoring')
     subreddit = reddit.subreddit(Search).top(limit=number)
     top_subreddit = subreddit
@@ -90,7 +90,7 @@ def reddittop(Search,number=100):
         pass
     return "Done"
 
-def redditnew(Search,number=100):
+def redditnew(Search,number=1000):
     reddit = praw.Reddit(client_id='qReU5pXkg46LcA', client_secret='HmxBqKB7ua_rbNVW3_8BUAg3kvlE4Q', user_agent='media monitoring')
     subreddit = reddit.subreddit(Search).new(limit=number)
     top_subreddit = subreddit

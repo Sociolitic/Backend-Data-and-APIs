@@ -29,13 +29,13 @@ def redditapi():
 	Limit = request.args.get('limit')
 	Search = request.args.get('q')
 	if Limit is None:
-		Limit=100
+		Limit=1000
 	if (Sort=="Top"):
 		return reddittop(Search,number=int(Limit))
-	elif (Sort=='New'):
-		return redditnew(Search,number=int(Limit))
-	else:
+	elif (Sort=='Hot'):
 		return reddithot(Search,number=int(Limit))
+	else:
+		return redditnew(Search,number=int(Limit))
 
 @app.route('/youtube/stats/',methods=['GET'])
 def youtubestats():
