@@ -17,7 +17,7 @@ def normalization_(sentence,tokenize=True):
    sentence = re.sub(r'http[^\s]+', '', sentence)
    sentence = re.sub('@[^\s]+','',sentence)
    sentence = re.sub('/',' ',sentence)
-   sentence = re.sub('[^A-Za-z]', ' ', sentence)
+   sentence = re.sub('.',' ',sentence)
    try:
           lang = detect(sentence)
           if lang != 'en':
