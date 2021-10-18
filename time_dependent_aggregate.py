@@ -17,74 +17,16 @@ Tumblr = db.tumblr
 Reddit = db.reddit
 Aggregate = db.aggregate
 
-def years_(s,l,tag):
-        todays_date = datetime.today()
-        years = []
-        years_ner = []
-        for i in range (l,s,-1):
-            start = datetime((todays_date.year-i), 1, 1)
-            end = datetime((todays_date.year-i), 12, 31)
-            data,ner = data_(start,end,tag)
-            years.insert(0, data)
-            years_ner.insert(0, ner)
-        return(years,years_ner)
+def counter(dict_):
+    for key in dict_.keys():
+        dict_[key]=dict(Counter(dict_[key]))
+    return correct_dict(dict_)
 
-def months_(s,l,tag):
-    months= []
-    months_ner = []
-    todays_date = datetime.today()
-    for i in range (s,todays_date.month):
-        x,y = calendar.monthrange(todays_date.year, i)
-        start = start = datetime((todays_date.year), i, 1)
-        end = datetime((todays_date.year), i, y)
-        data,ner = data_(start,end,tag)
-        months.append(data)
-        months_ner.append(ner)
-    months = (months + l * ['x'])[:l]
-    months_ner = (months_ner + l * ['x'])[:l]
-    return(months,months_ner)
-
-def days_(s,l,tag):
-        days = []
-        days_ner = []
-        todays_date = datetime.today()
-        for  i in  range (s,todays_date.day):
-            start = datetime(todays_date.year, todays_date.month,i,0,0,0)
-            end =  datetime(todays_date.year, todays_date.month,i,23,59,59)
-            data,ner = data_(start,end,tag)
-            days.append(data)
-            days_ner.append(ner)
-        days = (days + l * ['x'])[:l]
-        days_ner = (days_ner + l * ['x'])[:l]
-        return (days,days_ner)
-
-def hours_(s,l,tag):
-        hours = []
-        hours_ner = []
-        todays_date = datetime.today()
-        for  i in  range (s,todays_date.hour):
-            start = datetime(todays_date.year, todays_date.month,todays_date.day,i,0,0)
-            end =  datetime(todays_date.year, todays_date.month,todays_date.day,i,59,59)
-            data,ner = data_(start,end,tag)
-            hours.append(data)
-            hours_ner.append(ner)
-        hours = (hours + l * ['x'])[:l]
-        hours_ner = (hours_ner + l * ['x'])[:l]
-        return (hours,hours_ner)
-
-def minutes_(s,l,tag):
-        minutes = []
-        minutes_ner = []
-        todays_date = datetime.today()
-        for  i in  range (s,todays_date.minute):
-            start = datetime(todays_date.year, todays_date.month,todays_date.day,todays_date.hour,i,0)
-            end =  datetime(todays_date.year, todays_date.month,todays_date.day,todays_date.hour,i,59)
-            data,ner = data_(start,end,tag)
-            minutes.append(data)
-            minutes_ner.append(ner)
-        minutes = (minutes + l * ['x'])[:l]
-        minutes_ner = (minutes_ner + l * ['x'])[:l]
-        return (minutes,minutes_ner)
+def merge_dicts(list_):
+    x = {}
+    for y in list_:
+        x = { key:x.get(key,[])+y.get(key,[]) for key in set(list(x.keys())+list(y.keys())) }
+    return x
 
 def data_(start,end,tag):
             reddit_pos = reddit_neg = reddit_neu = youtube_pos = youtube_neg = youtube_neu = tumblr_pos = tumblr_neg = tumblr_neu = twitter_pos = twitter_neg = twitter_neu = 0
@@ -136,8 +78,6 @@ def data_(start,end,tag):
             tumblr = tumblr_neu+tumblr_neg+tumblr_pos
             twitter = twitter_pos+twitter_neg+twitter_neu
             ner = {
-                "start":start,
-                "end":end,
                 "total": counter(merge_dicts([reddit_ner,twitter_ner,tumblr_ner,youtube_ner])),
                 "reddit":counter(reddit_ner),
                 "twitter":counter(twitter_ner),
@@ -145,44 +85,100 @@ def data_(start,end,tag):
                 "youtube":counter(youtube_ner)
             }
             data = {
-                        "start":start,
-                        "end":end,
                         "total":twitter+tumblr+youtube+reddit,
                         "positive":reddit_pos+youtube_pos+tumblr_pos+twitter_pos,
                         "negative":reddit_neg+youtube_neg+tumblr_neg+twitter_neg,
                         "neutral":reddit_neu+youtube_neu+tumblr_neu+twitter_neu,
-                        "sources":{
-                        "reddit":
-                        {
-                            "total":reddit,
-                            "positive":reddit_pos,
-                            "negative":reddit_neg,
-                            "neutral":reddit_neu
-                        },
-                        "youtube":
-                        {
-                            "total":youtube,
-                            "positive":youtube_pos,
-                            "negative":youtube_neg,
-                            "neutral":youtube_neu
-                        },
-                        "tumblr":
-                        {
-                            "total":tumblr,
-                            "positive":tumblr_pos,
-                            "negative":tumblr_neg,
-                            "neutral":tumblr_neu
-                        },
-                        "twitter":
-                        {
-                            "total":twitter,
-                            "positive":twitter_pos,
-                            "negative":twitter_neg,
-                            "neutral":twitter_neu
+                        "sources_reddit_total":reddit,
+                        "sources_reddit_positive":reddit_pos,
+                        "sources_reddit_negative":reddit_neg,
+                        "sources_reddit_neutral":reddit_neu,
+                        "sources_youtube_total":youtube,
+                        "sources_youtube_positive":youtube_pos,
+                        "sources_youtube_negative":youtube_neg,
+                        "sources_youtube_neutral":youtube_neu,
+                        "sources_tumblr_total":tumblr,
+                        "sources_tumblr_positive":tumblr_pos,
+                        "sources_tumblr_negative":tumblr_neg,
+                        "sources_tumblr_neutral":tumblr_neu,
+                        "sources_twitter_total":twitter,
+                        "sources_twitter_positive":twitter_pos,
+                        "sources_twitter_negative":twitter_neg,
+                        "sources_twitter_neutral":twitter_neu
                         }
-                        }
-                    }
             return data,ner
+
+def years_(l,tag):
+        todays_date = datetime.today()
+        years = []
+        years_ner = []
+        for i in range (l,0,-1):
+            start = datetime((todays_date.year-i), 1, 1)
+            end = datetime((todays_date.year-i), 12, 31)
+            data,ner = data_(start,end,tag)
+            years.insert(0, data)
+            years_ner.insert(0, ner)
+        years = dist_list(years)
+        return(years,years_ner)
+
+def months_(s,tag):
+    months= []
+    months_ner = []
+    todays_date = datetime.today()
+    for i in range (s,todays_date.month):
+        x,y = calendar.monthrange(todays_date.year, i)
+        start = start = datetime((todays_date.year), i, 1)
+        end = datetime((todays_date.year), i, y)
+        data,ner = data_(start,end,tag)
+        months.append(data)
+        months_ner.append(ner)
+    months = dist_list(months)
+    return(months,months_ner)
+
+def days_(s,tag):
+        days = []
+        days_ner = []
+        todays_date = datetime.today()
+        for  i in  range (s,todays_date.day):
+            start = datetime(todays_date.year, todays_date.month,i,0,0,0)
+            end =  datetime(todays_date.year, todays_date.month,i,23,59,59)
+            data,ner = data_(start,end,tag)
+            days.append(data)
+            days_ner.append(ner)
+        days = dist_list(days)
+        return (days,days_ner)
+
+def hours_(s,tag):
+        hours = []
+        hours_ner = []
+        todays_date = datetime.today()
+        for  i in  range (s,todays_date.hour):
+            start = datetime(todays_date.year, todays_date.month,todays_date.day,i,0,0)
+            end =  datetime(todays_date.year, todays_date.month,todays_date.day,i,59,59)
+            data,ner = data_(start,end,tag)
+            hours.append(data)
+            hours_ner.append(ner)
+        hours = dist_list(hours)
+        return (hours,hours_ner)
+
+def minutes_(s,tag):
+        minutes = []
+        minutes_ner = []
+        todays_date = datetime.today()
+        for  i in  range (s,todays_date.minute):
+            start = datetime(todays_date.year, todays_date.month,todays_date.day,todays_date.hour,i,0)
+            end =  datetime(todays_date.year, todays_date.month,todays_date.day,todays_date.hour,i,59)
+            data,ner = data_(start,end,tag)
+            minutes.append(data)
+            minutes_ner.append(ner)
+        minutes = dist_list(minutes)
+        return (minutes,minutes_ner)
+
+def nest_dict(dict_):
+    result = {}
+    for k, v in dict_.items():
+        _nest_dict_rec(k, v, result)
+    return result
 
 def correct_dict(d):
     new = {}
@@ -192,29 +188,38 @@ def correct_dict(d):
         new[k.replace('.', '_')] = v
     return new
 
-def counter(dict_):
-    for key in dict_.keys():
-        dict_[key]=dict(Counter(dict_[key]))
-    return correct_dict(dict_)
+def _nest_dict_rec(k, v, out):
+    k, *rest = k.split('_', 1)
+    if rest:
+        _nest_dict_rec(rest[0], v, out.setdefault(k, {}))
+    else:
+        out[k] = v
 
-def merge_dicts(list_):
+def dist_list(List_dict):
+    if List_dict==[]:
+        return {}
+    dict_ = {k: [dic[k] for dic in List_dict] for k in List_dict[0]}
+    return nest_dict(dict_)
+
+def merge(dict_):
     x = {}
-    for y in list_:
-        x = { key:x.get(key,[])+y.get(key,[]) for key in set(list(x.keys())+list(y.keys())) }
+    for k,v in dict_.items():
+        if isinstance(v, dict):
+            x[k]=merge(v)
+        if isinstance(v, list):
+            x[k]=[sum(v)]
     return x
-
-def merge_data(c):
-    start = c[0]["start"]
-    end = c[-1]["end"]
-    c = [{k: v for k, v in d.items() if k not in ['start','end']} for d in c]
-    c = merge(c)
-    c["start"]=start
-    c["end"]=end
-    return c
-
-def merge(c):
-    _keys = {i for b in c for i in b}
-    return {i:[sum, merge][isinstance(c[0][i], dict)]([h[i] for h in c]) for i in _keys}
+def merge_dict(a,b):
+    if a=={}:
+        return b
+    de = {}
+    for i, j in a.items():
+        if isinstance(j,list):
+            a[i].extend(b[i])
+            de[i]=a[i]
+        if isinstance(j,dict):
+            de[i] = merge_dict(j,b[i])
+    return dict(de)
 
 def cal_sum(lst):
     final_dict = dict()
@@ -229,28 +234,17 @@ def sum_(final_dict,iter_dict):
         elif isinstance(v, int):
             final_dict[k] = final_dict.get(k, 0) + v
 
-def merge_ner(c):
-    start = c[0]["start"]
-    end = c[-1]["end"]
-    c = [{k: v for k, v in d.items() if k not in ['start','end']} for d in c]
-    c = cal_sum(c)
-    c["start"]=start
-    c["end"]=end
-    return c
-
 def get_data(tag):
     if (db["aggregate"].find({'tag':tag}).count() > 0)== False:
         profiles_data = db["profile"].find({"brand":tag},{"_id"})
         profiles=[]
         for ele in profiles_data:
             profiles.append(str(ele["_id"]))
-        years,years_ner = years_(0,5,tag)
-        months,months_ner= months_(1,12,tag)
-        todays_date = datetime.today()
-        x,y = calendar.monthrange(todays_date.year, todays_date.month)
-        days,days_ner= days_(1,y,tag)
-        hours,hours_ner = hours_(0,24,tag)
-        minutes,minutes_ner = minutes_(0,60,tag)
+        years,years_ner = years_(5,tag)
+        months,months_ner= months_(1,tag)
+        days,days_ner= days_(1,tag)
+        hours,hours_ner = hours_(0,tag)
+        minutes,minutes_ner = minutes_(0,tag)
         output = {
             "tag":tag,
             "profiles":profiles,
@@ -273,6 +267,7 @@ def get_data(tag):
             }
         db["aggregate"].insert_one(output)
         db["ner_aggregate"].insert_one(output_ner)
+        time.sleep(45)
         while True:
             if (db["aggregate"].find({"tag":tag,"profiles":[]}).count==0):
                 return "done"
@@ -282,7 +277,7 @@ def get_data(tag):
                 if(todays_date.hour==0):
                     hour = 23
                     if(todays_date.day==1):
-                        day = len(days)
+                        day = len(days["total"])
                         if(todays_date.month==1):
                             month = 12
                             year = todays_date.year-1
@@ -300,28 +295,30 @@ def get_data(tag):
                 minute = todays_date.minute-1
             start = datetime(year,month,day,hour,minute,0)
             end =  datetime(year,month,day,hour,minute,59)
-            minutes[todays_date.minute-1] , minutes_ner[todays_date.minute-1] = data_(start,end,tag)
-            if(minutes[-1]!='x'):
-                hours[todays_date.hour-1] = merge_data(minutes)
-                hours_ner[todays_date.hour-1] = merge_ner(minutes_ner)
-                minutes = ['x']*60
-                minutes_ner = ['x']*60
-            if(hours[-1]!='x'):
-                days[todays_date.day-1] = merge_data(hours)
-                days_ner[todays_date.day-1] = merge_ner(hours_ner)
-                hours = ['x']*24
-                hours_ner = ['x']*24
-            if(days[-1]!='x'):
-                months[todays_date.month-1] = merge_data(days)
-                months_ner[todays_date.month-1] = merge_ner(days_ner)
-                x,y = calendar.monthrange(todays_date.year, todays_date.month)
-                days = ['x']*y
-                days_ner = ['x']*y
-            if(months[-1]!='x'):
-                years.append(merge_data(months))
-                years_ner.append(merge_ner(months_ner))
-                months = ["x"] * 12
-                months_ner = ["x"] * 12
+            data , ner = data_(start,end,tag)
+            minutes_ner.append(ner)
+            minutes = merge_dict(minutes,dist_list([data]))
+            if(len(minutes["total"])==60):
+                hours=merge_dict(hours,merge(minutes))
+                hours_ner.append(cal_sum(minutes_ner))
+                minutes = {}
+                minutes_ner = []
+            if(len(hours["total"])==24):
+                days=merge_dict(hours,merge(hours))
+                days_ner.append(cal_sum(hours_ner))
+                hours = {}
+                hours_ner = []
+            x,y = calendar.monthrange(year,month)
+            if(len(days["total"])== y):
+                months=merge_dict(hours,merge(days))
+                months_ner.append(cal_sum(days_ner))
+                days = {}
+                days_ner = []
+            if(len(months["total"])==12):
+                years=merge_dict(hours,merge(months))
+                years_ner.append(cal_sum(months_ner))
+                months = {}
+                months_ner = []
             output1 = {
                 "years":years,
                 "months":months,
@@ -360,39 +357,37 @@ def get_data(tag):
         hours_ner = output_ner["hours"]
         minutes_ner = output_ner["mins"]
         if (todays_date.year>check_date.year):
-            data,ner=years_(0,(todays_date.year-check_date.year),tag)
-            years =(years+(data))
+            data,ner=years_((todays_date.year-check_date.year),tag)
+            years =merge_dict(years,(data))
             years_ner = (years_ner+ner)
-            months,months_ner= months_(1,12,tag)
+            months,months_ner= months_(1,tag)
             todays_date = datetime.today()
             x,y = calendar.monthrange(todays_date.year, todays_date.month)
             days,days_ner = days_(1,y,tag)
-            hours,hours_ner = hours_(0,24,tag)
-            minutes,minutes_ner = minutes_(0,60,tag)
+            hours,hours_ner = hours_(0,tag)
+            minutes,minutes_ner = minutes_(0,tag)
         elif (todays_date.month>check_date.month):
-            data,ner = months_((months.index("x")+1),(12-months.index("x")),tag)
-            months = months[:months.index("x")]+(data)
-            months_ner = months_ner[:months.index("x")]+(ner)
-            x,y = calendar.monthrange(todays_date.year, todays_date.month)
-            days,days_ner = days_(1,y,tag)
-            hours,hours_ner = hours_(0,24,tag)
-            minutes,minutes_ner = minutes_(0,60,tag)
+            data,ner = months_(len(months["total"]),tag)
+            months = merge_dict(months,data)
+            months_ner = months_ner+(ner)
+            days,days_ner = days_(1,tag)
+            hours,hours_ner = hours_(0,tag)
+            minutes,minutes_ner = minutes_(0,tag)
         elif(todays_date.day>check_date.day):
-            a,b = calendar.monthrange(todays_date.year, todays_date.month)
-            data,ner = days_((days.index("x")),(b+1-days.index("x")),tag)
-            days = days[:days.index("x")]+(data)
-            days_ner = days_ner[:days.index("x")]+(ner)
-            hours,hours_ner = hours_(0,24,tag)
-            minutes,minutes_ner = minutes_(0,60,tag)
+            data,ner = days_(len(days["total"]),tag)
+            days = merge_dict(days,data)
+            days_ner = days_ner+(ner)
+            hours,hours_ner = hours_(0,tag)
+            minutes,minutes_ner = minutes_(0,tag)
         elif(todays_date.hour>check_date.hour):
-            data,ner = hours_((hours.index("x")),(25-hours.index("x")),tag)
-            hours = hours[:hours.index("x")]+(data)
-            hours_ner = hours_ner[:hours.index("x")]+(ner)
-            minutes,minutes_ner = minutes_(0,60,tag)
-        elif(todays_date.minute>check_date.minute):
-            data,ner = minutes_((minutes.index("x")),(61-minutes.index("x")),tag)
-            minutes = minutes[:minutes.index("x")]+(data)
-            minutes_ner = minutes_ner[:minutes.index("x")]+(ner)
+            data,ner = hours_(len(hours["total"]),tag)
+            hours = merge_dict(hours,data)
+            hours_ner = hours_ner+ner
+            minutes,minutes_ner = minutes_(0,tag)
+        elif(todays_date.minute>check_date.minute+1):
+            data,ner = minutes_(len(minutes["total"]),tag)
+            minutes = merge_dict(minutes,data)
+            minutes_ner = minutes_ner+ner
         output1 = {
                 "years":years,
                 "months":months,
@@ -411,7 +406,8 @@ def get_data(tag):
             }
         db["aggregate"].update_one({"tag":tag},{"$set":output1})
         db["ner_aggregate"].update_one({"tag":tag},{"$set":output_ner})
-        while True:
+        time.sleep(45)
+        while(True):
             if (db["aggregate"].find({"tag":tag,"profiles":[]}).count==0):
                 return "done"
             todays_date = datetime.today()
@@ -420,7 +416,7 @@ def get_data(tag):
                 if(todays_date.hour==0):
                     hour = 23
                     if(todays_date.day==1):
-                        day = len(days)
+                        day = len(days["total"])
                         if(todays_date.month==1):
                             month = 12
                             year = todays_date.year-1
@@ -438,28 +434,30 @@ def get_data(tag):
                 minute = todays_date.minute-1
             start = datetime(year,month,day,hour,minute,0)
             end =  datetime(year,month,day,hour,minute,59)
-            minutes[todays_date.minute-1] , minutes_ner[todays_date.minute-1] = data_(start,end,tag)
-            if(minutes[-1]!='x'):
-                hours[todays_date.hour-1] = merge_data(minutes)
-                hours_ner[todays_date.hour-1] = merge_ner(minutes_ner)
-                minutes = ['x']*60
-                minutes_ner = ['x']*60
-            if(hours[-1]!='x'):
-                days[todays_date.day-1] = merge_data(hours)
-                days_ner[todays_date.day-1] = merge_ner(hours_ner)
-                hours = ['x']*24
-                hours_ner = ['x']*24
-            if(days[-1]!='x'):
-                months[todays_date.month-1] = merge_data(days)
-                months_ner[todays_date.month-1] = merge_ner(days_ner)
-                x,y = calendar.monthrange(todays_date.year, todays_date.month)
-                days = ['x']*y
-                days_ner = ['x']*y
-            if(months[-1]!='x'):
-                years.append(merge_data(months))
-                years_ner.append(merge_ner(months_ner))
-                months = ["x"] * 12
-                months_ner = ["x"] * 12
+            data , ner = data_(start,end,tag)
+            minutes_ner.append(ner)
+            minutes = merge_dict(minutes,dist_list([data]))
+            if(len(minutes["total"])==60):
+                hours=merge_dict(hours,merge(minutes))
+                hours_ner.append(cal_sum(minutes_ner))
+                minutes = {}
+                minutes_ner = []
+            if(len(hours["total"])==24):
+                days=merge_dict(hours,merge(hours))
+                days_ner.append(cal_sum(hours_ner))
+                hours = {}
+                hours_ner = []
+            x,y = calendar.monthrange(year,month)
+            if(len(days["total"])== y):
+                months=merge_dict(hours,merge(days))
+                months_ner.append(cal_sum(days_ner))
+                days = {}
+                days_ner = []
+            if(len(months["total"])==12):
+                years=merge_dict(hours,merge(months))
+                years_ner.append(cal_sum(months_ner))
+                months = {}
+                months_ner = []
             output1 = {
                 "years":years,
                 "months":months,
