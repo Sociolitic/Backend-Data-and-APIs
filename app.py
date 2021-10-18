@@ -145,7 +145,7 @@ def deletion():
 	    profiles.remove(str(id_))
 	    output1 = {"profiles":profiles,"updatedAt": datetime.now()}
 	    db["aggregate"].update_one({"_id":x[0]["_id"]},{"$set":output1})
-		db["ner_aggregate"].update_one({"_id":x_ner[0]["_id"]},{"$set":output1})
+	    db["ner_aggregate"].update_one({"_id":x_ner[0]["_id"]},{"$set":output1})
 	except:
 		return "Done"
 	return "done"
