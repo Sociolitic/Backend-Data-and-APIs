@@ -14,10 +14,10 @@ def normalization_(sentence,tokenize=True):
    sentence = html.unescape(sentence)
    regex = re.compile(r'[\n\r\t]')
    sentence = regex.sub(" ", sentence)
-   sentence = re.sub(r'http[^\s]+', '', sentence)
+   sentence = re.sub('http[^\s]+', '', sentence)
    sentence = re.sub('@[^\s]+','',sentence)
-   sentence = re.sub('/',' ',sentence)
-   sentence = re.sub('.',' ',sentence)
+   sentence = re.sub('#[^\s]+','',sentence)
+
    try:
           lang = detect(sentence)
           if lang != 'en':
