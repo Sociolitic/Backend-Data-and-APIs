@@ -15,12 +15,13 @@ from ner_aggregate import *
 from bson.objectid import ObjectId
 import pymongo
 from pymongo import MongoClient
-
+from datetime import datetime
 
 app = Flask(__name__)
 
 @app.route('/')
 def baseurl():
+	print(datetime.today())
 	return("working")
 
 @app.route('/reddit/search/',methods=['GET'])
