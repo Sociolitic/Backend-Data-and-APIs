@@ -139,7 +139,13 @@ def aggregate():
 @app.route('/aggregate_data/',methods=['GET'])
 def aggregate_data():
 	Search = request.args.get('q')
-	return get_data(Search)
+	return get_data_aggregate(Search)
+
+@app.route('/aggregate_ner_data/',methods=['GET'])
+def aggregate_ner_data():
+	Search = request.args.get('q')
+	return get_data_ner_aggregate(Search)
+
 
 @app.route('/deletion/',methods=['GET'])
 def deletion():

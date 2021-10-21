@@ -86,15 +86,41 @@ def minutes_(s,l,tag):
         minutes_ner = (minutes_ner + l * ['x'])[:l]
         return (minutes,minutes_ner)
 
+def refine_list(lst):
+    i=0
+    while(i<len(lst)):
+        j=i+1
+        while(j<len(lst)):
+            if (lst[i]["source"]==lst[j]["source"] and lst[i]['tag']==lst[j]['tag'] and lst[i]['phrase']==lst[j]['phrase'] and lst[i]['sentiment']==lst[j]['sentiment']):
+                lst[i]['count']+=lst[j]['count']
+                if lst[i]['created_date']>lst[j]['created_date']:
+                    lst[i]['created_date']=lst[j]['created_date']
+                lst.remove(lst[j])
+            j+=1
+        i+=1
+    newlist = sorted(lst, key=lambda d: d['count'],reverse = True)
+    return newlist[:20]
+
+def ner_data(NER,source,sentiment,date):
+    Data = []
+    for k,v in NER.items():
+        if (len(v)>0):
+            for i in v:
+                data = {"source":source,
+                         "tag":k,
+                         "phrase":i,
+                         "sentiment":sentiment,
+                         "created_date":date,
+                         "count":1}
+                Data.append(data)
+    return Data
+
 def data_(start,end,tag):
             reddit_pos = reddit_neg = reddit_neu = youtube_pos = youtube_neg = youtube_neu = tumblr_pos = tumblr_neg = tumblr_neu = twitter_pos = twitter_neg = twitter_neu = 0
-            reddit_ner={}
-            youtube_ner={}
-            tumblr_ner = {}
-            twitter_ner ={}
-            reddit  = Reddit.find({'tag': tag,"created_time":{'$lt': end, '$gte': start}},{"sentiment","ner"})
+            NER_data=[]
+            reddit  = Reddit.find({'tag': tag,"created_time":{'$lt': end, '$gte': start}},{"sentiment","ner","created_time"})
             for data in reddit:
-                reddit_ner = {key:reddit_ner.get(key,[])+data["ner"].get(key,[]) for key in set(list(reddit_ner.keys())+list(data["ner"].keys())) }
+                NER_data.extend(ner_data(data["ner"],"reddit",data["sentiment"],data["created_time"]))
                 if data["sentiment"]=="Positive":
                     reddit_pos+=1
                 elif data["sentiment"]=="Negative":
@@ -102,9 +128,9 @@ def data_(start,end,tag):
                 else:
                     reddit_neu+=1
 
-            youtube  = YouTube.find({'tag': tag,"created_time":{'$lt': end, '$gte': start}},{"sentiment","ner"})
+            youtube  = YouTube.find({'tag': tag,"created_time":{'$lt': end, '$gte': start}},{"sentiment","ner",'created_time'})
             for data in youtube:
-                youtube_ner = {key:youtube_ner.get(key,[])+data["ner"].get(key,[]) for key in set(list(youtube_ner.keys())+list(data["ner"].keys())) }
+                NER_data.extend(ner_data(data["ner"],"youtube",data["sentiment"],data["created_time"]))
                 if data["sentiment"]=="Positive":
                     youtube_pos+=1
                 elif data["sentiment"]=="Negative":
@@ -112,9 +138,9 @@ def data_(start,end,tag):
                 else:
                     youtube_neu+=1
 
-            tumblr  = Tumblr.find({'tag': tag,"created_time":{'$lt': end, '$gte': start}},{"sentiment","ner"})
+            tumblr  = Tumblr.find({'tag': tag,"created_time":{'$lt': end, '$gte': start}},{"sentiment","ner",'created_time'})
             for data in tumblr:
-                tumblr_ner = {key:tumblr_ner.get(key,[])+data["ner"].get(key,[]) for key in set(list(tumblr_ner.keys())+list(data["ner"].keys())) }
+                NER_data.extend(ner_data(data["ner"],"tumblr",data["sentiment"],data["created_time"]))
                 if data["sentiment"]=="Positive":
                     tumblr_pos+=1
                 elif data["sentiment"]=="Negative":
@@ -122,9 +148,9 @@ def data_(start,end,tag):
                 else:
                     tumblr_neu+=1
 
-            twitter  = Twitter.find({'tag': tag,"created_time":{'$lt': end, '$gte': start}},{"sentiment","ner"})
+            twitter  = Twitter.find({'tag': tag,"created_time":{'$lt': end, '$gte': start}},{"sentiment","ner",'created_time'})
             for data in twitter:
-                twitter_ner = {key:twitter_ner.get(key,[])+data["ner"].get(key,[]) for key in set(list(twitter_ner.keys())+list(data["ner"].keys())) }
+                NER_data.extend(ner_data(data["ner"],"twitter",data["sentiment"],data["created_time"]))
                 if data["sentiment"]=="Positive":
                     twitter_pos+=1
                 elif data["sentiment"]=="Negative":
@@ -135,13 +161,6 @@ def data_(start,end,tag):
             youtube = youtube_pos+youtube_neg+youtube_neu
             tumblr = tumblr_neu+tumblr_neg+tumblr_pos
             twitter = twitter_pos+twitter_neg+twitter_neu
-            ner = {
-                "total": counter(merge_dicts([reddit_ner,twitter_ner,tumblr_ner,youtube_ner])),
-                "reddit":counter(reddit_ner),
-                "twitter":counter(twitter_ner),
-                "tumblr":counter(tumblr_ner),
-                "youtube":counter(youtube_ner)
-            }
             data = {
                         "total":twitter+tumblr+youtube+reddit,
                         "positive":reddit_pos+youtube_pos+tumblr_pos+twitter_pos,
@@ -178,44 +197,19 @@ def data_(start,end,tag):
                         }
                         }
                     }
-            return data,ner
-
-def correct_dict(d):
-    new = {}
-    for k, v in d.items():
-        if isinstance(v, dict):
-            v = correct_dict(v)
-        new[k.replace('.', '_')] = v
-    return new
-
-def counter(dict_):
-    for key in dict_.keys():
-        dict_[key]=dict(Counter(dict_[key]))
-    return correct_dict(dict_)
-
-def merge_dicts(list_):
-    x = {}
-    for y in list_:
-        x = { key:x.get(key,[])+y.get(key,[]) for key in set(list(x.keys())+list(y.keys())) }
-    return x
-
+            NER_data = refine_list(NER_data)
+            return data,NER_data
 
 def merge(c):
     _keys = {i for b in c for i in b}
     return {i:[sum, merge][isinstance(c[0][i], dict)]([h[i] for h in c]) for i in _keys}
 
 def merge_ner(lst):
-    final_dict = dict()
+    final_list = []
     for l in lst:
-        sum_(final_dict,l)
-    return final_dict
-
-def sum_(final_dict,iter_dict):
-    for k, v in iter_dict.items():
-        if isinstance(v, dict):
-            sum_(final_dict.setdefault(k, dict()), v)
-        elif isinstance(v, int):
-            final_dict[k] = final_dict.get(k, 0) + v
+        final_list.extend(l)
+    final_list = refine_list(final_list)
+    return final_list
 
 def insert_data(tag):
     if (db["aggregate"].find({'tag':tag}).count() > 0)== False:
@@ -231,6 +225,7 @@ def insert_data(tag):
         days,days_ner= days_(1,y,tag)
         hours,hours_ner = hours_(0,24,tag)
         minutes,minutes_ner = minutes_(0,60,tag)
+        now = datetime.now()
         output = {
             "tag":tag,
             "profiles":profiles,
@@ -254,72 +249,74 @@ def insert_data(tag):
         db["aggregate"].insert_one(output)
         db["ner_aggregate"].insert_one(output_ner)
         while True:
-            if (db["aggregate"].find({"tag":tag,"profiles":[]}).count==0):
-                return "No profiles are monitoring"
-            todays_date = datetime.today()
-            if(todays_date.minute==0):
-                minute = 59
-                if(todays_date.hour==0):
-                    hour = 23
-                    if(todays_date.day==1):
-                        day = len(days)
-                        if(todays_date.month==1):
-                            month = 12
-                            year = todays_date.year-1
+            while ((datetime.now()-now).seconds>60):
+                now = datetime.now()
+                if (db["aggregate"].find({"tag":tag,"profiles":[]}).count==0):
+                    return "No profiles are monitoring"
+                todays_date = datetime.today()
+                if(todays_date.minute==0):
+                    minute = 59
+                    if(todays_date.hour==0):
+                        hour = 23
+                        if(todays_date.day==1):
+                            day = len(days)
+                            if(todays_date.month==1):
+                                month = 12
+                                year = todays_date.year-1
+                            else:
+                                month= todays_date.month-1
                         else:
-                            month= todays_date.month-1
+                            day = todays_date.day-1
                     else:
-                        day = todays_date.day-1
+                        hour = todays_date.hour-1
                 else:
-                    hour = todays_date.hour-1
-            else:
-                year = todays_date.year
-                month = todays_date.month
-                day = todays_date.day
-                hour = todays_date.hour
-                minute = todays_date.minute-1
-            start = datetime(year,month,day,hour,minute,0)
-            end =  datetime(year,month,day,hour,minute,59)
-            minutes[todays_date.minute-1] , minutes_ner[todays_date.minute-1] = data_(start,end,tag)
-            if(minutes[-1]!='x'):
-                hours[todays_date.hour-1] = merge(minutes)
-                hours_ner[todays_date.hour-1] = merge_ner(minutes_ner)
-                minutes = ['x']*60
-                minutes_ner = ['x']*60
-            if(hours[-1]!='x'):
-                days[todays_date.day-1] = merge(hours)
-                days_ner[todays_date.day-1] = merge_ner(hours_ner)
-                hours = ['x']*24
-                hours_ner = ['x']*24
-            if(days[-1]!='x'):
-                months[todays_date.month-1] = merge(days)
-                months_ner[todays_date.month-1] = merge_ner(days_ner)
-                x,y = calendar.monthrange(todays_date.year, todays_date.month)
-                days = ['x']*y
-                days_ner = ['x']*y
-            if(months[-1]!='x'):
-                years.append(merge(months))
-                years_ner.append(merge_ner(months_ner))
-                months = ["x"] * 12
-                months_ner = ["x"] * 12
-            output1 = {
-                "years":years,
-                "months":months,
-                "days":days,
-                "hours":hours,
-                "mins":minutes,
-                "updatedAt": datetime.now()
-                }
-            output_ner = {
-                "years":years_ner,
-                "months":months_ner,
-                "days":days_ner,
-                "hours":hours_ner,
-                "mins":minutes_ner,
-                "updatedAt": datetime.now()
-                }
-            db["aggregate"].update_one({"tag":tag},{"$set":output1})
-            db["ner_aggregate"].update_one({"tag":tag},{"$set":output_ner})
+                    year = todays_date.year
+                    month = todays_date.month
+                    day = todays_date.day
+                    hour = todays_date.hour
+                    minute = todays_date.minute-1
+                start = datetime(year,month,day,hour,minute,0)
+                end =  datetime(year,month,day,hour,minute,59)
+                minutes[todays_date.minute-1] , minutes_ner[todays_date.minute-1] = data_(start,end,tag)
+                if(minutes[-1]!='x'):
+                    hours[todays_date.hour-1] = merge(minutes)
+                    hours_ner[todays_date.hour-1] = merge_ner(minutes_ner)
+                    minutes = ['x']*60
+                    minutes_ner = ['x']*60
+                if(hours[-1]!='x'):
+                    days[todays_date.day-1] = merge(hours)
+                    days_ner[todays_date.day-1] = merge_ner(hours_ner)
+                    hours = ['x']*24
+                    hours_ner = ['x']*24
+                if(days[-1]!='x'):
+                    months[todays_date.month-1] = merge(days)
+                    months_ner[todays_date.month-1] = merge_ner(days_ner)
+                    x,y = calendar.monthrange(todays_date.year, todays_date.month)
+                    days = ['x']*y
+                    days_ner = ['x']*y
+                if(months[-1]!='x'):
+                    years.append(merge(months))
+                    years_ner.append(merge_ner(months_ner))
+                    months = ["x"] * 12
+                    months_ner = ["x"] * 12
+                output1 = {
+                    "years":years,
+                    "months":months,
+                    "days":days,
+                    "hours":hours,
+                    "mins":minutes,
+                    "updatedAt": datetime.now()
+                    }
+                output_ner = {
+                    "years":years_ner,
+                    "months":months_ner,
+                    "days":days_ner,
+                    "hours":hours_ner,
+                    "mins":minutes_ner,
+                    "updatedAt": datetime.now()
+                    }
+                db["aggregate"].update_one({"tag":tag},{"$set":output1})
+                db["ner_aggregate"].update_one({"tag":tag},{"$set":output_ner})
         return "done"
     else:
         if (db["aggregate"].find({"tag":tag,"profiles":[]}).count==0):
@@ -342,7 +339,7 @@ def insert_data(tag):
         if (todays_date.year>check_date.year):
             data,ner=years_(0,(todays_date.year-check_date.year),tag)
             years =(years+(data))
-            years_ner = (years_ner+ner)
+            years_ner = (years_ner.extend(ner))
             months,months_ner= months_(1,12,tag)
             todays_date = datetime.today()
             x,y = calendar.monthrange(todays_date.year, todays_date.month)
@@ -352,7 +349,7 @@ def insert_data(tag):
         elif (todays_date.month>check_date.month):
             data,ner = months_((months.index("x")+1),(12-months.index("x")),tag)
             months = months[:months.index("x")]+(data)
-            months_ner = months_ner[:months.index("x")]+(ner)
+            months_ner = months_ner[:months.index("x")].extend(ner)
             x,y = calendar.monthrange(todays_date.year, todays_date.month)
             days,days_ner = days_(1,y,tag)
             hours,hours_ner = hours_(0,24,tag)
@@ -361,21 +358,22 @@ def insert_data(tag):
             a,b = calendar.monthrange(todays_date.year, todays_date.month)
             data,ner = days_((days.index("x")),(b+1-days.index("x")),tag)
             days = days[:days.index("x")]+(data)
-            days_ner = days_ner[:days.index("x")]+(ner)
+            days_ner = days_ner[:days.index("x")].extend(ner)
             hours,hours_ner = hours_(0,24,tag)
             minutes,minutes_ner = minutes_(0,60,tag)
         elif(todays_date.hour>check_date.hour):
             data,ner = hours_((hours.index("x")),(25-hours.index("x")),tag)
             hours = hours[:hours.index("x")]+(data)
-            hours_ner = hours_ner[:hours.index("x")]+(ner)
+            hours_ner = hours_ner[:hours.index("x")].extend(ner)
             minutes,minutes_ner = minutes_(0,60,tag)
         elif(todays_date.minute>check_date.minute):
             if "x" in minutes:
                 data,ner = minutes_((minutes.index("x")),(61-minutes.index("x")),tag)
                 minutes = minutes[:minutes.index("x")]+(data)
-                minutes_ner = minutes_ner[:minutes.index("x")]+(ner)
+                minutes_ner = minutes_ner[:minutes.index("x")].extend(ner)
             else:
                 minutes,minutes_ner = minutes_(0,60,tag)
+        now = datetime.now()
         output1 = {
                 "years":years,
                 "months":months,
@@ -395,72 +393,74 @@ def insert_data(tag):
         db["aggregate"].update_one({"tag":tag},{"$set":output1})
         db["ner_aggregate"].update_one({"tag":tag},{"$set":output_ner})
         while True:
-            if (db["aggregate"].find({"tag":tag,"profiles":[]}).count==0):
-                return "No profiles are monitoring"
-            todays_date = datetime.today()
-            if(todays_date.minute==0):
-                minute = 59
-                if(todays_date.hour==0):
-                    hour = 23
-                    if(todays_date.day==1):
-                        day = len(days)
-                        if(todays_date.month==1):
-                            month = 12
-                            year = todays_date.year-1
+            while ((datetime.now()-now).seconds>60):
+                now = datetime.now()
+                if (db["aggregate"].find({"tag":tag,"profiles":[]}).count==0):
+                    return "No profiles are monitoring"
+                todays_date = datetime.today()
+                if(todays_date.minute==0):
+                    minute = 59
+                    if(todays_date.hour==0):
+                        hour = 23
+                        if(todays_date.day==1):
+                            day = len(days)
+                            if(todays_date.month==1):
+                                month = 12
+                                year = todays_date.year-1
+                            else:
+                                month= todays_date.month-1
                         else:
-                            month= todays_date.month-1
+                            day = todays_date.day-1
                     else:
-                        day = todays_date.day-1
+                        hour = todays_date.hour-1
                 else:
-                    hour = todays_date.hour-1
-            else:
-                year = todays_date.year
-                month = todays_date.month
-                day = todays_date.day
-                hour = todays_date.hour
-                minute = todays_date.minute-1
-            start = datetime(year,month,day,hour,minute,0)
-            end =  datetime(year,month,day,hour,minute,59)
-            minutes[todays_date.minute-1] , minutes_ner[todays_date.minute-1] = data_(start,end,tag)
-            if(minutes[-1]!='x'):
-                hours[todays_date.hour-1] = merge(minutes)
-                hours_ner[todays_date.hour-1] = merge_ner(minutes_ner)
-                minutes = ['x']*60
-                minutes_ner = ['x']*60
-            if(hours[-1]!='x'):
-                days[todays_date.day-1] = merge(hours)
-                days_ner[todays_date.day-1] = merge_ner(hours_ner)
-                hours = ['x']*24
-                hours_ner = ['x']*24
-            if(days[-1]!='x'):
-                months[todays_date.month-1] = merge(days)
-                months_ner[todays_date.month-1] = merge_ner(days_ner)
-                x,y = calendar.monthrange(todays_date.year, todays_date.month)
-                days = ['x']*y
-                days_ner = ['x']*y
-            if(months[-1]!='x'):
-                years.append(merge(months))
-                years_ner.append(merge_ner(months_ner))
-                months = ["x"] * 12
-                months_ner = ["x"] * 12
-            output1 = {
-                "years":years,
-                "months":months,
-                "days":days,
-                "hours":hours,
-                "mins":minutes,
-                "updatedAt": datetime.now()
-                }
-            output_ner = {
-                "years":years_ner,
-                "months":months_ner,
-                "days":days_ner,
-                "hours":hours_ner,
-                "mins":minutes_ner,
-                "updatedAt": datetime.now()
-                }
-            db["aggregate"].update_one({"tag":tag},{"$set":output1})
-            db["ner_aggregate"].update_one({"tag":tag},{"$set":output_ner})
+                    year = todays_date.year
+                    month = todays_date.month
+                    day = todays_date.day
+                    hour = todays_date.hour
+                    minute = todays_date.minute-1
+                start = datetime(year,month,day,hour,minute,0)
+                end =  datetime(year,month,day,hour,minute,59)
+                minutes[todays_date.minute-1] , minutes_ner[todays_date.minute-1] = data_(start,end,tag)
+                if(minutes[-1]!='x'):
+                    hours[todays_date.hour-1] = merge(minutes)
+                    hours_ner[todays_date.hour-1] = merge_ner(minutes_ner)
+                    minutes = ['x']*60
+                    minutes_ner = ['x']*60
+                if(hours[-1]!='x'):
+                    days[todays_date.day-1] = merge(hours)
+                    days_ner[todays_date.day-1] = merge_ner(hours_ner)
+                    hours = ['x']*24
+                    hours_ner = ['x']*24
+                if(days[-1]!='x'):
+                    months[todays_date.month-1] = merge(days)
+                    months_ner[todays_date.month-1] = merge_ner(days_ner)
+                    x,y = calendar.monthrange(todays_date.year, todays_date.month)
+                    days = ['x']*y
+                    days_ner = ['x']*y
+                if(months[-1]!='x'):
+                    years.append(merge(months))
+                    years_ner.append(merge_ner(months_ner))
+                    months = ["x"] * 12
+                    months_ner = ["x"] * 12
+                output1 = {
+                    "years":years,
+                    "months":months,
+                    "days":days,
+                    "hours":hours,
+                    "mins":minutes,
+                    "updatedAt": datetime.now()
+                    }
+                output_ner = {
+                    "years":years_ner,
+                    "months":months_ner,
+                    "days":days_ner,
+                    "hours":hours_ner,
+                    "mins":minutes_ner,
+                    "updatedAt": datetime.now()
+                    }
+                db["aggregate"].update_one({"tag":tag},{"$set":output1})
+                db["ner_aggregate"].update_one({"tag":tag},{"$set":output_ner})
         return "done"
 
 def dist_list(List_dict):
@@ -472,22 +472,49 @@ def dist_list(List_dict):
             dict_[k] = dist_list(v)
     return dict_
 
-def get_data(tag):
-    data = db["aggregate"].find({"tag":tag})
-    if (data.count==0):
-        return("Aggregate isn't started yet")
-    else:
-        data = data[0]
-        Data = {
-            "_id":str(data['_id']),
-            "tag":data['tag'],
-            "profiles":data["profiles"],
-            "years":dist_list(data["years"]),
-            "months":dist_list(data["months"][:data["months"].index("x")]),
-            "days":dist_list(data["days"][:data["days"].index("x")]),
-            "hours":dist_list(data["hours"][:data["hours"].index("x")]),
-            "mins":dist_list(data["mins"][:data["mins"].index("x")]),
-            "createdAt":data["createdAt"],
-            "updatedAt":data["updatedAt"]
-        }
+def get_data_aggregate(tag):
+    try:
+        data = db["aggregate"].find({"tag":tag})
+        if (data.count==0):
+            return("Aggregate isn't started yet")
+        else:
+            data = data[0]
+            Data = {
+                "_id":str(data['_id']),
+                "tag":data['tag'],
+                "profiles":data["profiles"],
+                "years":dist_list(data["years"]),
+                "months":dist_list(data["months"][:data["months"].index("x")]),
+                "days":dist_list(data["days"][:data["days"].index("x")]),
+                "hours":dist_list(data["hours"][:data["hours"].index("x")]),
+                "mins":dist_list(data["mins"][:data["mins"].index("x")]),
+                "createdAt":data["createdAt"],
+                "updatedAt":data["updatedAt"]
+            }
         return Data
+    except:
+        return("Aggregate isn't started yet")
+
+
+def get_data_ner_aggregate(tag):
+    try:
+        data = db["ner_aggregate"].find({"tag":tag})
+        if (data.count==0):
+            return("Aggregate isn't started yet")
+        else:
+            data = data[0]
+            Data = {
+                "_id":str(data['_id']),
+                "tag":data['tag'],
+                "profiles":data["profiles"],
+                "years":(data["years"]),
+                "months":(data["months"][:data["months"].index("x")]),
+                "days":(data["days"][:data["days"].index("x")]),
+                "hours":(data["hours"][:data["hours"].index("x")]),
+                "mins":(data["mins"][:data["mins"].index("x")]),
+                "createdAt":data["createdAt"],
+                "updatedAt":data["updatedAt"]
+            }
+        return Data
+    except:
+        return("Aggregate isn't started yet")
