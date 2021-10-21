@@ -219,6 +219,7 @@ def sum_(final_dict,iter_dict):
 
 def insert_data(tag):
     if (db["aggregate"].find({'tag':tag}).count() > 0)== False:
+        print("aggregate started")
         profiles_data = db["profile"].find({"brand":tag},{"_id"})
         profiles=[]
         for ele in profiles_data:
@@ -322,7 +323,8 @@ def insert_data(tag):
         return "done"
     else:
         if (db["aggregate"].find({"tag":tag,"profiles":[]}).count==0):
-            return "done"
+            return "No profiles are monitoring"
+        print("Aggregate is updating")
         output = db["aggregate"].find({"tag":tag})[0]
         output_ner = db["ner_aggregate"].find({"tag":tag})[0]
         check_date = output["updatedAt"]
