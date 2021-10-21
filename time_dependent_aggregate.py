@@ -249,7 +249,7 @@ def insert_data(tag):
         db["aggregate"].insert_one(output)
         db["ner_aggregate"].insert_one(output_ner)
         while True:
-            while ((datetime.now()-now).seconds>60):
+            while ((datetime.now()-now).seconds>50):
                 now = datetime.now()
                 if (db["aggregate"].find({"tag":tag,"profiles":[]}).count==0):
                     return "No profiles are monitoring"
@@ -325,6 +325,10 @@ def insert_data(tag):
         output = db["aggregate"].find({"tag":tag})[0]
         output_ner = db["ner_aggregate"].find({"tag":tag})[0]
         check_date = output["updatedAt"]
+        time.sleep(60)
+        output_x = db["aggregate"].find({"tag":tag})[0]
+        if (output_x["updatedAt"]!=check_date):
+            return ("other function is running")
         todays_date = datetime.now()
         years = output["years"]
         months = output["months"]
@@ -339,7 +343,7 @@ def insert_data(tag):
         if (todays_date.year>check_date.year):
             data,ner=years_(0,(todays_date.year-check_date.year),tag)
             years =(years+(data))
-            years_ner = (years_ner.extend(ner))
+            (years_ner.extend(ner))
             months,months_ner= months_(1,12,tag)
             todays_date = datetime.today()
             x,y = calendar.monthrange(todays_date.year, todays_date.month)
@@ -347,9 +351,9 @@ def insert_data(tag):
             hours,hours_ner = hours_(0,24,tag)
             minutes,minutes_ner = minutes_(0,60,tag)
         elif (todays_date.month>check_date.month):
-            data,ner = months_((months.index("x")+1),(12-months.index("x")),tag)
-            months = months[:months.index("x")]+(data)
-            months_ner = months_ner[:months.index("x")].extend(ner)
+            data,ner = months_((months_ner.index("x")+1),(12-months_ner.index("x")),tag)
+            months = months[:months_ner.index("x")]+(data)
+            months_ner[:months_ner.index("x")].extend(ner)
             x,y = calendar.monthrange(todays_date.year, todays_date.month)
             days,days_ner = days_(1,y,tag)
             hours,hours_ner = hours_(0,24,tag)
@@ -357,20 +361,20 @@ def insert_data(tag):
         elif(todays_date.day>check_date.day):
             a,b = calendar.monthrange(todays_date.year, todays_date.month)
             data,ner = days_((days.index("x")),(b+1-days.index("x")),tag)
-            days = days[:days.index("x")]+(data)
-            days_ner = days_ner[:days.index("x")].extend(ner)
+            days = days[:days_ner.index("x")]+(data)
+            days_ner[:days_ner.index("x")].extend(ner)
             hours,hours_ner = hours_(0,24,tag)
             minutes,minutes_ner = minutes_(0,60,tag)
         elif(todays_date.hour>check_date.hour):
-            data,ner = hours_((hours.index("x")),(25-hours.index("x")),tag)
-            hours = hours[:hours.index("x")]+(data)
-            hours_ner = hours_ner[:hours.index("x")].extend(ner)
+            data,ner = hours_((hours_ner.index("x")),(25-hours_ner.index("x")),tag)
+            hours = hours[:hours_ner.index("x")]+(data)
+            hours_ner = hours_ner[:hours_ner.index("x")].extend(ner)
             minutes,minutes_ner = minutes_(0,60,tag)
         elif(todays_date.minute>check_date.minute):
             if "x" in minutes:
-                data,ner = minutes_((minutes.index("x")),(61-minutes.index("x")),tag)
-                minutes = minutes[:minutes.index("x")]+(data)
-                minutes_ner = minutes_ner[:minutes.index("x")].extend(ner)
+                data,ner = minutes_((minutes_ner.index("x")),(61-minutes_ner.index("x")),tag)
+                minutes = minutes[:minutes_ner.index("x")]+(data)
+                minutes_ner[:minutes_ner.index("x")].extend(ner)
             else:
                 minutes,minutes_ner = minutes_(0,60,tag)
         now = datetime.now()
@@ -393,7 +397,7 @@ def insert_data(tag):
         db["aggregate"].update_one({"tag":tag},{"$set":output1})
         db["ner_aggregate"].update_one({"tag":tag},{"$set":output_ner})
         while True:
-            while ((datetime.now()-now).seconds>60):
+            while ((datetime.now()-now).seconds>50):
                 now = datetime.now()
                 if (db["aggregate"].find({"tag":tag,"profiles":[]}).count==0):
                     return "No profiles are monitoring"
