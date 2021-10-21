@@ -133,6 +133,11 @@ def ner_mention():
 @app.route('/aggregate/',methods=['GET'])
 def aggregate():
 	Search = request.args.get('q')
+	return insert_data(Search)
+
+@app.route('/aggregate_data/',methods=['GET'])
+def aggregate_data():
+	Search = request.args.get('q')
 	return get_data(Search)
 
 @app.route('/deletion/',methods=['GET'])
