@@ -1,9 +1,9 @@
 import tweepy
 import pymongo
 from pymongo import MongoClient
-import datetime
+from datetime import datetime
+import time
 import dns
-import datetime
 from sentiment import *
 from ner import *
 from twitter_spam_filter import *
@@ -22,6 +22,12 @@ auth.set_access_token(access_token,access_token_secret)
 api = tweepy.API(auth, wait_on_rate_limit=True)
 
 import json,time
+
+
+def datetime_from_utc_to_local(utc_datetime):
+    now_timestamp = time.time()
+    offset = datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp)
+    return utc_datetime + offset
 
 class MyStreamListener(tweepy.StreamListener):
 
@@ -60,7 +66,7 @@ class MyStreamListener(tweepy.StreamListener):
                             "id": str(tweet_id) ,
                             "tag" : self.query,
                             "sentiment" : Sentiment,
-                            "created_time" :   created_at,
+                            "created_time" :  datetime_from_utc_to_local(created_at),
                             "ner": tags(tweet_txt),
                             "url":"https://twitter.com/i/web/status/"+str(tweet_id),
                             "spam":False,
@@ -72,9 +78,10 @@ class MyStreamListener(tweepy.StreamListener):
                             "lang": lang,
                             "entities": entities,
                             },
-                            "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
+                            "createdAt": datetime.now(), "updatedAt": datetime.now()
                         }
-                Twitter.insert_one(twitter_data)
+                print("updating")
+                db.twitter.insert_one(twitter_data)
             if (time.time() - self.start_time) > self.limit:
                 # print(time.time(), self.start_time, self.limit)
                 return False
@@ -124,7 +131,7 @@ def twitter_past(q,count=3000):
                             "id": str(tweet_id) ,
                             "tag" : q,
                             "sentiment" : Sentiment,
-                            "created_time" :   created_at,
+                            "created_time" :  datetime_from_utc_to_local(created_at),
                             "ner": tags(tweet_txt),
                             "url":"https://twitter.com/i/web/status/"+str(tweet_id),
                             "spam":False,
@@ -136,9 +143,9 @@ def twitter_past(q,count=3000):
                             "lang": lang,
                             "entities": entities,
                             },
-                            "createdAt": datetime.datetime.now(), "updatedAt": datetime.datetime.now()
+                            "createdAt": datetime.now(), "updatedAt": datetime.now()
                         }
-                Twitter.insert_one(twitter_data)
+                db.twitter.insert_one(twitter_data)
     return ("Extracted twitter data")
 
 def twitter_stream(q,t=15*60):
