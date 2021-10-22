@@ -256,28 +256,6 @@ def insert_data(tag):
         end = datetime(previous_day.year,previous_day.month,previous_day.day,previous_day.hour,59,59)
         data = data_(start,end,tag)
         previous_hour = data[0]["total"]
-        this_hour = data[0]["positive"]
-        if (this_hour!=0 and previous_hour!=0):
-            if(previous_hour==0):
-                change = this_hour
-            else:
-                change = (previous_hour-this_hour)/previous_hour*100
-            if (abs(change)>=20):
-                previous_day = now - timedelta(25)
-                start = datetime(previous_day.year,previous_day.month,previous_day.day,previous_day.hour,0,)
-                end = datetime(previous_day.year,previous_day.month,previous_day.day,previous_day.hour,59,59)
-                data = data_(start,end,tag)
-                previous_day_hour = data[0]["total"]
-                print(change,this_hour,previous_hour,previous_day_hour)
-                data={
-                    "tag":tag,
-                    "profiles":profiles,
-                    "change":change,
-                    "this_hour":this_hour,
-                    "previous_hour":previous_hour,
-                    "previous_day_hour":previous_day_hour
-                }
-                requests.post(url, data=json.dumps(data), headers=headers)
         db["aggregate"].insert_one(output)
         db["ner_aggregate"].insert_one(output_ner)
         while True:
