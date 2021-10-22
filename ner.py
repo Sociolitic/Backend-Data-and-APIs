@@ -10,28 +10,28 @@ nltk.download('punkt')
 nlp = spacy.load('en_core_web_sm')
 
 def normalization_(sentence,tokenize=True):
-   sentence = truecase.get_true_case(sentence)
-   sentence = html.unescape(sentence)
-   regex = re.compile(r'[\n\r\t]')
-   sentence = regex.sub(" ", sentence)
-   sentence = re.sub('http[^\s]+', '', sentence)
-   sentence = re.sub('@[^\s]+','',sentence)
-   sentence = re.sub('#[^\s]+','',sentence)
+    sentence = html.unescape(sentence)
+    regex = re.compile(r'[\n\r\t]')
+    sentence = regex.sub(" ", sentence)
+    sentence = re.sub(r'http[^\s]+', '', sentence)
+    sentence = re.sub(r'@[^\s]+','',sentence)
+    sentence = re.sub(r'#[^\s]+','',sentence)
+    sentence = truecase.get_true_case(sentence)
 
-   try:
-          lang = detect(sentence)
-          if lang != 'en':
-              translator = google_translator()
-              sentence = translator.translate (sentence,lang_tgt='en')
-   except :
-          try:
-              translator = google_translator()
-              sentence = translator.translate (sentence,lang_tgt='en')
-          except:
-              pass
-   sentence = contractions.fix(sentence)
-   sentence = unidecode.unidecode(sentence)
-   return sentence
+    try:
+            lang = detect(sentence)
+            if lang != 'en':
+                translator = google_translator()
+                sentence = translator.translate (sentence,lang_tgt='en')
+    except :
+            try:
+                translator = google_translator()
+                sentence = translator.translate (sentence,lang_tgt='en')
+            except:
+                pass
+    sentence = contractions.fix(sentence)
+    sentence = unidecode.unidecode(sentence)
+    return sentence
 
 def tags(sentence):
     sentence=normalization_(sentence)
