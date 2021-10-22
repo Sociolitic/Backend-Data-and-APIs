@@ -80,7 +80,6 @@ class MyStreamListener(tweepy.StreamListener):
                             },
                             "createdAt": datetime.now(), "updatedAt": datetime.now()
                         }
-                print("updating")
                 db.twitter.insert_one(twitter_data)
             if (time.time() - self.start_time) > self.limit:
                 # print(time.time(), self.start_time, self.limit)

@@ -1,13 +1,17 @@
 import pymongo
 from pymongo import MongoClient
 import random
-from datetime import datetime
+from datetime import datetime,timedelta
 import warnings
 import calendar
 from pymongo import MongoClient
 import time
 from collections import Counter
+import requests
+import json
 warnings.filterwarnings("ignore", category=DeprecationWarning)
+headers = {'content-type': 'application/json'}
+url = 'http://master:8080/brand/alert'
 
 client = pymongo.MongoClient("mongodb+srv://KokilaReddy:KokilaReddy@cluster0.5nrpf.mongodb.net/Sociolitic?retryWrites=true&w=majority")
 db = client.Social_media_data
@@ -226,6 +230,7 @@ def insert_data(tag):
         hours,hours_ner = hours_(0,24,tag)
         minutes,minutes_ner = minutes_(0,60,tag)
         now = datetime.now()
+
         output = {
             "tag":tag,
             "profiles":profiles,
@@ -246,6 +251,33 @@ def insert_data(tag):
             "mins":minutes_ner,
             "createdAt": datetime.now(), "updatedAt": datetime.now()
             }
+        previous_day = now - timedelta(1)
+        start = datetime(previous_day.year,previous_day.month,previous_day.day,previous_day.hour,0,)
+        end = datetime(previous_day.year,previous_day.month,previous_day.day,previous_day.hour,59,59)
+        data = data_(start,end,tag)
+        previous_hour = data[0]["total"]
+        this_hour = data[0]["positive"]
+        if (this_hour!=0 and previous_hour!=0):
+            if(previous_hour==0):
+                change = this_hour
+            else:
+                change = (previous_hour-this_hour)/previous_hour*100
+            if (abs(change)>=20):
+                previous_day = now - timedelta(25)
+                start = datetime(previous_day.year,previous_day.month,previous_day.day,previous_day.hour,0,)
+                end = datetime(previous_day.year,previous_day.month,previous_day.day,previous_day.hour,59,59)
+                data = data_(start,end,tag)
+                previous_day_hour = data[0]["total"]
+                print(change,this_hour,previous_hour,previous_day_hour)
+                data={
+                    "tag":tag,
+                    "profiles":profiles,
+                    "change":change,
+                    "this_hour":this_hour,
+                    "previous_hour":previous_hour,
+                    "previous_day_hour":previous_day_hour
+                }
+                requests.post(url, data=json.dumps(data), headers=headers)
         db["aggregate"].insert_one(output)
         db["ner_aggregate"].insert_one(output_ner)
         while True:
@@ -279,6 +311,28 @@ def insert_data(tag):
                 end =  datetime(year,month,day,hour,minute,59)
                 minutes[todays_date.minute-1] , minutes_ner[todays_date.minute-1] = data_(start,end,tag)
                 if(minutes[-1]!='x'):
+                    this_hour=merge(minutes)["total"]
+                    if (this_hour!=0 and previous_hour!=0):
+                        if(previous_hour==0):
+                            change = this_hour
+                        else:
+                            change = (previous_hour-this_hour)/previous_hour*100
+                        if (abs(change)>=20):
+                            previous_day = now - timedelta(25)
+                            start = datetime(previous_day.year,previous_day.month,previous_day.day,previous_day.hour,0,)
+                            end = datetime(previous_day.year,previous_day.month,previous_day.day,previous_day.hour,59,59)
+                            data = data_(start,end,tag)
+                            previous_day_hour = data[0]["total"]
+                            data={
+                                "tag":tag,
+                                "profiles":profiles,
+                                "change":change,
+                                "this_hour":this_hour,
+                                "previous_hour":previous_hour,
+                                "previous_day_hour":previous_day_hour
+                            }
+                            requests.post(url, data=json.dumps(data), headers=headers)
+                    previous_hour = this_hour
                     hours[todays_date.hour-1] = merge(minutes)
                     hours_ner[todays_date.hour-1] = merge_ner(minutes_ner)
                     minutes = ['x']*60
@@ -343,7 +397,7 @@ def insert_data(tag):
         if (todays_date.year>check_date.year):
             data,ner=years_(0,(todays_date.year-check_date.year),tag)
             years =(years+(data))
-            (years_ner.extend(ner))
+            years_ner = (years_ner+ner)
             months,months_ner= months_(1,12,tag)
             todays_date = datetime.today()
             x,y = calendar.monthrange(todays_date.year, todays_date.month)
@@ -353,7 +407,7 @@ def insert_data(tag):
         elif (todays_date.month>check_date.month):
             data,ner = months_((months_ner.index("x")+1),(12-months_ner.index("x")),tag)
             months = months[:months_ner.index("x")]+(data)
-            months_ner[:months_ner.index("x")].extend(ner)
+            months_ner = months_ner[:months_ner.index("x")]+ner
             x,y = calendar.monthrange(todays_date.year, todays_date.month)
             days,days_ner = days_(1,y,tag)
             hours,hours_ner = hours_(0,24,tag)
@@ -362,19 +416,19 @@ def insert_data(tag):
             a,b = calendar.monthrange(todays_date.year, todays_date.month)
             data,ner = days_((days.index("x")),(b+1-days.index("x")),tag)
             days = days[:days_ner.index("x")]+(data)
-            days_ner[:days_ner.index("x")].extend(ner)
+            days_ner = days_ner[:days_ner.index("x")]+ner
             hours,hours_ner = hours_(0,24,tag)
             minutes,minutes_ner = minutes_(0,60,tag)
         elif(todays_date.hour>check_date.hour):
             data,ner = hours_((hours_ner.index("x")),(25-hours_ner.index("x")),tag)
             hours = hours[:hours_ner.index("x")]+(data)
-            hours_ner = hours_ner[:hours_ner.index("x")].extend(ner)
+            hours_ner = hours_ner[:hours_ner.index("x")]+ner
             minutes,minutes_ner = minutes_(0,60,tag)
         elif(todays_date.minute>check_date.minute):
             if "x" in minutes:
                 data,ner = minutes_((minutes_ner.index("x")),(61-minutes_ner.index("x")),tag)
                 minutes = minutes[:minutes_ner.index("x")]+(data)
-                minutes_ner[:minutes_ner.index("x")].extend(ner)
+                minutes_ner = minutes_ner[:minutes_ner.index("x")]+ner
             else:
                 minutes,minutes_ner = minutes_(0,60,tag)
         now = datetime.now()
@@ -396,6 +450,11 @@ def insert_data(tag):
             }
         db["aggregate"].update_one({"tag":tag},{"$set":output1})
         db["ner_aggregate"].update_one({"tag":tag},{"$set":output_ner})
+        previous_day = now - timedelta(1)
+        start = datetime(previous_day.year,previous_day.month,previous_day.day,previous_day.hour,0,)
+        end = datetime(previous_day.year,previous_day.month,previous_day.day,previous_day.hour,59,59)
+        data = data_(start,end,tag)
+        previous_hour = data[0]["total"]
         while True:
             while ((datetime.now()-now).seconds>50):
                 now = datetime.now()
@@ -427,6 +486,28 @@ def insert_data(tag):
                 end =  datetime(year,month,day,hour,minute,59)
                 minutes[todays_date.minute-1] , minutes_ner[todays_date.minute-1] = data_(start,end,tag)
                 if(minutes[-1]!='x'):
+                    this_hour=merge(minutes)["total"]
+                    if (this_hour!=0 and previous_hour!=0):
+                        if(previous_hour==0):
+                            change = this_hour
+                        else:
+                            change = (previous_hour-this_hour)/previous_hour*100
+                        if (abs(change)>=20):
+                            previous_day = now - timedelta(25)
+                            start = datetime(previous_day.year,previous_day.month,previous_day.day,previous_day.hour,0,)
+                            end = datetime(previous_day.year,previous_day.month,previous_day.day,previous_day.hour,59,59)
+                            data = data_(start,end,tag)
+                            previous_day_hour = data[0]["total"]
+                            data={
+                                "tag":tag,
+                                "profiles":profiles,
+                                "change":change,
+                                "this_hour":this_hour,
+                                "previous_hour":previous_hour,
+                                "previous_day_hour":previous_day_hour
+                            }
+                            requests.post(url, data=json.dumps(data), headers=headers)
+                    previous_hour = this_hour
                     hours[todays_date.hour-1] = merge(minutes)
                     hours_ner[todays_date.hour-1] = merge_ner(minutes_ner)
                     minutes = ['x']*60
