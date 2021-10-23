@@ -110,9 +110,11 @@ def ner_data(NER,source,sentiment,date):
     for k,v in NER.items():
         if (len(v)>0):
             for i in v:
+                x = i.replace('.', '_')
+                x = x.replace('$',' dollar ')
                 data = {"source":source,
                          "tag":k,
-                         "phrase":i,
+                         "phrase":x,
                          "sentiment":sentiment,
                          "created_date":date,
                          "count":1}
@@ -203,6 +205,7 @@ def data_(start,end,tag):
                     }
             NER_data = refine_list(NER_data)
             return data,NER_data
+
 
 def merge(c):
     _keys = {i for b in c for i in b}
