@@ -297,7 +297,7 @@ def insert_data(tag):
                         if(previous_hour==0):
                             change = this_hour
                         else:
-                            change = (previous_hour-this_hour)/previous_hour*100
+                            change = (this_hour - previous_hour)/previous_hour*100
                         if (abs(change)>=20):
                             previous_day = now - timedelta(25)
                             start = datetime(previous_day.year,previous_day.month,previous_day.day,previous_day.hour,0,)
@@ -472,7 +472,7 @@ def insert_data(tag):
                         if(previous_hour==0):
                             change = this_hour
                         else:
-                            change = (previous_hour-this_hour)/previous_hour*100
+                            change = (this_hour - previous_hour)/previous_hour*100
                         if (abs(change)>=20):
                             previous_day = now - timedelta(25)
                             start = datetime(previous_day.year,previous_day.month,previous_day.day,previous_day.hour,0,)
